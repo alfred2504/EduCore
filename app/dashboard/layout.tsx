@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { Sidebar } from "./sidebar";
-import { Topbar } from "./topbar";
+import { Topbar } from "@/components/layout/topbar";
 
 export default function DashboardLayout({
   children,
@@ -12,7 +12,7 @@ export default function DashboardLayout({
       <Sidebar />
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <Topbar />
+        <Topbar name="Alfred Makura" role="School Admin" />
 
         <main className="flex-1 p-6 lg:p-8">{children}</main>
       </div>
