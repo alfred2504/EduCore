@@ -1,6 +1,7 @@
 "use client";
 
 import { signOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 interface TopbarProps {
   name: string;
@@ -11,6 +12,7 @@ export function Topbar({
   name,
   role,
 }: TopbarProps) {
+  const router = useRouter();
   return (
     <header className="flex h-[72px] items-center justify-between border-b border-slate-200 bg-white px-6 dark:border-slate-800 dark:bg-[#111827]">
       <div>
@@ -42,11 +44,10 @@ export function Topbar({
 
         {/* Logout */}
         <button
-          onClick={() =>
-            signOut({
-              callbackUrl: "/login",
-            })
-          }
+          onClick={async () => {
+            await signOut({ redirect: false });
+            router.push("/login");
+          }}
           className="rounded-xl bg-red-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-600"
         >
           Logout
