@@ -26,6 +26,12 @@ const menuItems = [
     roles: ["SYSTEM_ADMIN", "SCHOOL_ADMIN", "TEACHER"],
   },
   {
+    title: "Classes",
+    href: "/dashboard/classes",
+    icon: GraduationCap,
+    roles: ["SYSTEM_ADMIN", "SCHOOL_ADMIN", "TEACHER"],
+  },
+  {
     title: "Students",
     href: "/dashboard/students",
     icon: Users,
