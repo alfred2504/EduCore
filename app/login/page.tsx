@@ -26,7 +26,7 @@ export default function LoginPage() {
     setLoading(false);
 
     if (res?.error) {
-      alert("Invalid credentials");
+      alert("Invalid credentials or account awaiting approval");
       return;
     }
 

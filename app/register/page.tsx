@@ -12,6 +12,7 @@ export default function RegisterPage() {
     name: "",
     email: "",
     password: "",
+    role: "STUDENT",
   });
 
   async function handleRegister(e: React.FormEvent) {
@@ -26,7 +27,6 @@ export default function RegisterPage() {
       },
       body: JSON.stringify({
         ...formData,
-        role: "SCHOOL_ADMIN",
       }),
     });
 
@@ -37,7 +37,12 @@ export default function RegisterPage() {
       return;
     }
 
-    router.push("/login");
+    // Redirect students to fill in their info; teachers go straight to login
+    if (formData.role === "STUDENT") {
+      router.push(`/register/student?email=${encodeURIComponent(formData.email)}&name=${encodeURIComponent(formData.name)}`);
+    } else {
+      router.push("/login");
+    }
   }
 
   return (
@@ -47,7 +52,10 @@ export default function RegisterPage() {
           Create Account
         </h1>
 
-        <p className="mt-2 text-slate-500">Start managing your school</p>
+        <p className="mt-2 text-slate-500">
+          Register as a teacher or student. Admin approval is required before
+          login.
+        </p>
 
         <form onSubmit={handleRegister} className="mt-6 space-y-4">
           <input
@@ -88,6 +96,20 @@ export default function RegisterPage() {
               })
             }
           />
+
+          <select
+            value={formData.role}
+            onChange={(e) =>
+              setFormData({
+                ...formData,
+                role: e.target.value,
+              })
+            }
+            className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+          >
+            <option value="STUDENT">Student</option>
+            <option value="TEACHER">Teacher</option>
+          </select>
 
           <button
             type="submit"

@@ -38,11 +38,18 @@ export const authOptions = {
           return null;
         }
 
+        const userStatus = (user as any).status ?? "APPROVED";
+
+        if (userStatus !== "APPROVED") {
+          return null;
+        }
+
         return {
           id: user.id,
           name: user.name,
           email: user.email,
           role: user.role,
+          status: userStatus,
         };
       },
     }),
@@ -56,6 +63,7 @@ export const authOptions = {
     async jwt({ token, user }: any) {
       if (user) {
         token.role = user.role;
+        token.status = (user as any).status ?? "APPROVED";
       }
 
       return token;
@@ -64,6 +72,7 @@ export const authOptions = {
     async session({ session, token }: any) {
       if (session.user) {
         session.user.role = token.role;
+        session.user.status = token.status;
       }
 
       return session;

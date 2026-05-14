@@ -5,6 +5,7 @@ export default async function DashboardPage() {
     await prisma.user.count({
       where: {
         role: "STUDENT",
+        status: "APPROVED",
       },
     });
 
@@ -12,13 +13,17 @@ export default async function DashboardPage() {
     await prisma.user.count({
       where: {
         role: "TEACHER",
+        status: "APPROVED",
       },
     });
 
   const totalAdmins =
     await prisma.user.count({
       where: {
-        role: "SCHOOL_ADMIN",
+        role: {
+          in: ["SYSTEM_ADMIN", "SCHOOL_ADMIN"],
+        },
+        status: "APPROVED",
       },
     });
 

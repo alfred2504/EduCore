@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import Link from "next/link";
 
 export default async function StudentsPage() {
   const students =
@@ -9,18 +10,25 @@ export default async function StudentsPage() {
     });
 
   return (
-    <div className="space-y-6">
-      {/* Heading */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
-            Students
-          </h1>
+    <div className="space-y-8">
+      {/* Header */}
+      <div>
+        <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
+          Students
+        </h1>
 
-          <p className="mt-1 text-slate-500">
-            Manage student records
-          </p>
-        </div>
+        <p className="mt-1 text-slate-500">
+          Manage student records
+        </p>
+      </div>
+
+      <div className="flex items-center justify-end">
+        <Link
+          href="/register/student"
+          className="rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
+        >
+          Register Student
+        </Link>
       </div>
 
       {/* Table */}
@@ -53,7 +61,9 @@ export default async function StudentsPage() {
                 className="border-b border-slate-100 dark:border-slate-800"
               >
                 <td className="px-6 py-4">
-                  {student.admissionNumber}
+                  {
+                    student.admissionNumber
+                  }
                 </td>
 
                 <td className="px-6 py-4">

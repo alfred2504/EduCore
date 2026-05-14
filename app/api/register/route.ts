@@ -8,6 +8,20 @@ export async function POST(req: Request) {
 
     const { name, email, password, role } = body;
 
+    if (!name || !email || !password) {
+      return NextResponse.json(
+        { error: "Name, email, and password are required" },
+        { status: 400 }
+      );
+    }
+
+    if (role !== "TEACHER" && role !== "STUDENT") {
+      return NextResponse.json(
+        { error: "Registration role must be TEACHER or STUDENT" },
+        { status: 400 }
+      );
+    }
+
     const existingUser = await prisma.user.findUnique({
       where: { email },
     });
@@ -27,10 +41,22 @@ export async function POST(req: Request) {
         email,
         password: hashedPassword,
         role,
+        status: "PENDING",
       },
     });
 
-    return NextResponse.json(user);
+    const userStatus = (user as any).status ?? "PENDING";
+
+    return NextResponse.json(
+      {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        status: userStatus,
+      },
+      { status: 201 }
+    );
   } catch (error) {
     console.error("/api/register error:", error);
     const message = (error instanceof Error) ? error.message : String(error);

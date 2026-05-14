@@ -1,8 +1,8 @@
-// app/dashboard/sidebar.tsx
-
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+
 import {
   LayoutDashboard,
   Users,
@@ -12,66 +12,81 @@ import {
   BrainCircuit,
   Settings,
 } from "lucide-react";
+
 import { cn } from "@/lib/utils";
-import { usePathname } from "next/navigation";
 
 const menuItems = [
   {
     title: "Dashboard",
     href: "/dashboard",
     icon: LayoutDashboard,
+    roles: ["SYSTEM_ADMIN", "SCHOOL_ADMIN", "TEACHER"],
   },
   {
     title: "Students",
     href: "/dashboard/students",
     icon: Users,
+    roles: ["SYSTEM_ADMIN", "SCHOOL_ADMIN", "TEACHER"],
   },
   {
     title: "Teachers",
     href: "/dashboard/teachers",
     icon: GraduationCap,
+    roles: ["SYSTEM_ADMIN", "SCHOOL_ADMIN"],
   },
   {
     title: "Results",
     href: "/dashboard/results",
     icon: ClipboardList,
+    roles: ["SYSTEM_ADMIN", "SCHOOL_ADMIN", "TEACHER"],
   },
   {
     title: "Procurement",
     href: "/dashboard/procurement",
     icon: Package,
+    roles: ["SYSTEM_ADMIN", "SCHOOL_ADMIN"],
   },
   {
     title: "AI Insights",
     href: "/dashboard/analytics",
     icon: BrainCircuit,
+    roles: ["SYSTEM_ADMIN", "SCHOOL_ADMIN"],
+  },
+  {
+    title: "Approvals",
+    href: "/dashboard/approvals",
+    icon: Settings,
+    roles: ["SYSTEM_ADMIN"],
   },
   {
     title: "Settings",
     href: "/dashboard/settings",
     icon: Settings,
+    roles: ["SYSTEM_ADMIN"],
   },
 ];
 
-export function Sidebar() {
+interface SidebarProps {
+  role: string;
+}
+
+export function Sidebar({ role }: SidebarProps) {
   const pathname = usePathname();
+
+  const filteredMenu = menuItems.filter((item) => item.roles.includes(role));
 
   return (
     <aside className="hidden w-[260px] border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-[#111827] lg:flex lg:flex-col">
-      {/* Logo */}
       <div className="border-b border-slate-200 px-6 py-5 dark:border-slate-800">
-        <h1 className="text-2xl font-bold text-blue-600">
-          EduCore
-        </h1>
+        <h1 className="text-2xl font-bold text-blue-600">EduCore</h1>
 
         <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-          One system. Total control.
+          Intelligent School OS
         </p>
       </div>
 
-      {/* Navigation */}
       <nav className="flex-1 space-y-1 px-3 py-4">
-        {menuItems.map((item) => {
+        {filteredMenu.map((item) => {
           const Icon = item.icon;
 
           return (
