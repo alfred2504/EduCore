@@ -8,6 +8,7 @@ import {
   Users,
   GraduationCap,
   ClipboardList,
+  BookOpen,
   Package,
   BrainCircuit,
   Settings,
@@ -41,6 +42,39 @@ const menuItems = [
   {
     title: "Classes",
     href: "/dashboard/classes",
+    icon: GraduationCap,
+    roles: [
+      "SYSTEM_ADMIN",
+      "SCHOOL_ADMIN",
+      "TEACHER",
+    ],
+  },
+
+  {
+    title: "Subjects",
+    href: "/dashboard/subjects",
+    icon: BookOpen,
+    roles: [
+      "SYSTEM_ADMIN",
+      "SCHOOL_ADMIN",
+      "TEACHER",
+    ],
+  },
+
+  {
+    title: "Attendance",
+    href: "/dashboard/attendance",
+    icon: ClipboardList,
+    roles: [
+      "SYSTEM_ADMIN",
+      "SCHOOL_ADMIN",
+      "TEACHER",
+    ],
+  },
+
+  {
+    title: "Grades",
+    href: "/dashboard/grades",
     icon: GraduationCap,
     roles: [
       "SYSTEM_ADMIN",
