@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -11,6 +12,8 @@ import {
   Package,
   BrainCircuit,
   Settings,
+  ChevronDown,
+  UserPlus,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -72,6 +75,10 @@ interface SidebarProps {
 
 export function Sidebar({ role }: SidebarProps) {
   const pathname = usePathname();
+  const [studentsOpen, setStudentsOpen] = useState(
+    pathname.startsWith("/dashboard/students") ||
+      pathname.startsWith("/register/student")
+  );
 
   const filteredMenu = menuItems.filter((item) => item.roles.includes(role));
 
@@ -88,6 +95,70 @@ export function Sidebar({ role }: SidebarProps) {
       <nav className="flex-1 space-y-1 px-3 py-4">
         {filteredMenu.map((item) => {
           const Icon = item.icon;
+
+          if (item.title === "Students") {
+            const isActive =
+              pathname.startsWith("/dashboard/students") ||
+              pathname.startsWith("/register/student");
+
+            return (
+              <div key={item.href} className="space-y-1">
+                <button
+                  type="button"
+                  onClick={() => setStudentsOpen((open) => !open)}
+                  className={cn(
+                    "flex w-full items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all",
+                    isActive
+                      ? "bg-blue-600 text-white shadow-md"
+                      : "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+                  )}
+                >
+                  <span className="flex items-center gap-3">
+                    <Icon size={18} />
+                    Students
+                  </span>
+
+                  <ChevronDown
+                    size={16}
+                    className={cn(
+                      "transition-transform duration-200",
+                      studentsOpen && "rotate-180"
+                    )}
+                  />
+                </button>
+
+                {studentsOpen && (
+                  <div className="space-y-1 pl-4">
+                    <Link
+                      href="/register/student"
+                      className={cn(
+                        "flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all",
+                        pathname.startsWith("/register/student")
+                          ? "bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300"
+                          : "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+                      )}
+                    >
+                      <UserPlus size={18} />
+                      Register Student
+                    </Link>
+
+                    <Link
+                      href={item.href}
+                      className={cn(
+                        "flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all",
+                        pathname.startsWith("/dashboard/students")
+                          ? "bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300"
+                          : "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+                      )}
+                    >
+                      <Icon size={18} />
+                      Manage student records
+                    </Link>
+                  </div>
+                )}
+              </div>
+            );
+          }
 
           return (
             <Link

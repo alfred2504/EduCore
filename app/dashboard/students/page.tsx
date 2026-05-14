@@ -1,5 +1,6 @@
-import { prisma } from "@/lib/prisma";
 import Link from "next/link";
+
+import { prisma } from "@/lib/prisma";
 
 export default async function StudentsPage() {
   const students =
@@ -22,33 +23,24 @@ export default async function StudentsPage() {
         </p>
       </div>
 
-      <div className="flex items-center justify-end">
-        <Link
-          href="/register/student"
-          className="rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
-        >
-          Register Student
-        </Link>
-      </div>
-
-      {/* Table */}
+      {/* Students Table */}
       <div className="overflow-hidden rounded-2xl bg-white shadow-sm dark:bg-[#111827]">
         <table className="w-full">
           <thead className="border-b border-slate-200 dark:border-slate-800">
             <tr>
-              <th className="px-6 py-4 text-left text-sm font-semibold">
+              <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-300">
                 Admission No
               </th>
 
-              <th className="px-6 py-4 text-left text-sm font-semibold">
+              <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-300">
                 Student
               </th>
 
-              <th className="px-6 py-4 text-left text-sm font-semibold">
+              <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-300">
                 Gender
               </th>
 
-              <th className="px-6 py-4 text-left text-sm font-semibold">
+              <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-300">
                 Email
               </th>
             </tr>
@@ -58,30 +50,44 @@ export default async function StudentsPage() {
             {students.map((student) => (
               <tr
                 key={student.id}
-                className="border-b border-slate-100 dark:border-slate-800"
+                className="border-b border-slate-100 transition hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-900"
               >
-                <td className="px-6 py-4">
-                  {
-                    student.admissionNumber
-                  }
+                {/* Admission Number */}
+                <td className="px-6 py-4 text-slate-700 dark:text-slate-300">
+                  {student.admissionNumber}
                 </td>
 
+                {/* Student Name */}
                 <td className="px-6 py-4">
-                  {student.firstName}{" "}
-                  {student.lastName}
+                  <Link
+                    href={`/dashboard/students/${student.id}`}
+                    className="font-medium text-blue-600 hover:underline"
+                  >
+                    {student.firstName}{" "}
+                    {student.lastName}
+                  </Link>
                 </td>
 
-                <td className="px-6 py-4">
+                {/* Gender */}
+                <td className="px-6 py-4 text-slate-700 dark:text-slate-300">
                   {student.gender}
                 </td>
 
-                <td className="px-6 py-4">
-                  {student.email}
+                {/* Email */}
+                <td className="px-6 py-4 text-slate-700 dark:text-slate-300">
+                  {student.email || "-"}
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
+
+        {/* Empty State */}
+        {students.length === 0 && (
+          <div className="p-10 text-center text-slate-500">
+            No students found
+          </div>
+        )}
       </div>
     </div>
   );
