@@ -1,5 +1,7 @@
 import { prisma } from "@/lib/prisma";
 
+import { createClassSchema } from "@/lib/validations/class";
+
 export async function GET() {
   try {
     const classes =
@@ -34,21 +36,12 @@ export async function POST(
   try {
     const body = await req.json();
 
-    const {
-      name,
-      level,
-      capacity,
-      academicYearId,
-    } = body;
+    const validatedData =
+      createClassSchema.parse(body);
 
     const newClass =
       await prisma.class.create({
-        data: {
-          name,
-          level,
-          capacity,
-          academicYearId,
-        },
+        data: validatedData,
       });
 
     return Response.json(newClass);

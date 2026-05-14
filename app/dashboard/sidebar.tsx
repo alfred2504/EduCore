@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -13,6 +13,7 @@ import {
   BrainCircuit,
   Settings,
   ChevronDown,
+  Plus,
   UserPlus,
 } from "lucide-react";
 
@@ -81,10 +82,20 @@ interface SidebarProps {
 
 export function Sidebar({ role }: SidebarProps) {
   const pathname = usePathname();
-  const [studentsOpen, setStudentsOpen] = useState(
-    pathname.startsWith("/dashboard/students") ||
-      pathname.startsWith("/register/student")
-  );
+  const [classesOpen, setClassesOpen] = useState(false);
+  const [studentsOpen, setStudentsOpen] = useState(false);
+
+  useEffect(() => {
+    setClassesOpen(
+      pathname.startsWith("/dashboard/classes") ||
+        pathname.startsWith("/dashboard/classes/register")
+    );
+
+    setStudentsOpen(
+      pathname.startsWith("/dashboard/students") ||
+        pathname.startsWith("/register/student")
+    );
+  }, [pathname]);
 
   const filteredMenu = menuItems.filter((item) => item.roles.includes(role));
 
@@ -101,6 +112,72 @@ export function Sidebar({ role }: SidebarProps) {
       <nav className="flex-1 space-y-1 px-3 py-4">
         {filteredMenu.map((item) => {
           const Icon = item.icon;
+
+          if (item.title === "Classes") {
+            const isActive =
+              pathname.startsWith("/dashboard/classes") ||
+              pathname.startsWith("/dashboard/classes/register");
+
+            return (
+              <div key={item.href} className="space-y-1">
+                <button
+                  type="button"
+                  onClick={() => setClassesOpen((open) => !open)}
+                  className={cn(
+                    "flex w-full items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all",
+                    isActive
+                      ? "bg-blue-600 text-white shadow-md"
+                      : "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+                  )}
+                >
+                  <span className="flex items-center gap-3">
+                    <Icon size={18} />
+                    Classes
+                  </span>
+
+                  <ChevronDown
+                    size={16}
+                    className={cn(
+                      "transition-transform duration-200",
+                      classesOpen && "rotate-180"
+                    )}
+                  />
+                </button>
+
+                {classesOpen && (
+                  <div className="space-y-1 pl-4">
+                    <Link
+                      href="/dashboard/classes/register"
+                      className={cn(
+                        "flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all",
+                        pathname.startsWith(
+                          "/dashboard/classes/register"
+                        )
+                          ? "bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300"
+                          : "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+                      )}
+                    >
+                      <Plus size={18} />
+                      Register Class
+                    </Link>
+
+                    <Link
+                      href={item.href}
+                      className={cn(
+                        "flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all",
+                        pathname === "/dashboard/classes"
+                          ? "bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300"
+                          : "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+                      )}
+                    >
+                      <Icon size={18} />
+                      Manage class records
+                    </Link>
+                  </div>
+                )}
+              </div>
+            );
+          }
 
           if (item.title === "Students") {
             const isActive =
