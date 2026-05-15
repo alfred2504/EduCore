@@ -1,14 +1,19 @@
-"use client";
-
-import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 import { CreateStudentForm } from "@/components/students/create-student-form";
 
-export default function StudentRegistrationPage() {
-  const searchParams = useSearchParams();
-  const email = searchParams.get("email") || "";
-  const name = searchParams.get("name") || "";
+type StudentRegistrationPageProps = {
+  searchParams?: {
+    email?: string;
+    name?: string;
+  };
+};
+
+export default function StudentRegistrationPage({
+  searchParams,
+}: StudentRegistrationPageProps) {
+  const email = searchParams?.email || "";
+  const name = searchParams?.name || "";
 
   // Parse full name into first and last name
   const nameParts = name.split(" ");
