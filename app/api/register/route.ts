@@ -7,6 +7,7 @@ export async function POST(req: Request) {
     const body = await req.json();
 
     const { name, email, password, role } = body;
+    const normalizedEmail = String(email).trim().toLowerCase();
 
     if (!name || !email || !password) {
       return NextResponse.json(
@@ -23,7 +24,7 @@ export async function POST(req: Request) {
     }
 
     const existingUser = await prisma.user.findUnique({
-      where: { email },
+      where: { email: normalizedEmail },
     });
 
     if (existingUser) {
@@ -38,7 +39,7 @@ export async function POST(req: Request) {
     const user = await prisma.user.create({
       data: {
         name,
-        email,
+        email: normalizedEmail,
         password: hashedPassword,
         role,
         status: "PENDING",

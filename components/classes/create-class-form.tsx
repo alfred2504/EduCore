@@ -54,7 +54,10 @@ export function CreateClassForm({
       );
 
       if (!response.ok) {
-        throw new Error();
+        const payload = await response.json().catch(() => null);
+        throw new Error(
+          payload?.error || "Failed to create class"
+        );
       }
 
       toast.success(
@@ -72,7 +75,9 @@ export function CreateClassForm({
 
     } catch (error) {
       toast.error(
-        "Failed to create class"
+        error instanceof Error
+          ? error.message
+          : "Failed to create class"
       );
 
     } finally {

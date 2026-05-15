@@ -8,5 +8,5 @@ export const createClassSchema =
 
     capacity: z.coerce.number(),
 
-    academicYearId: z.string(),
+    academicYearId: z.string().min(1, "Academic year is required"),
   });

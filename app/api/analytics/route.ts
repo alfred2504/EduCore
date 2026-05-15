@@ -1,5 +1,4 @@
 import { prisma } from "@/lib/prisma";
-import { Prisma } from "@prisma/client";
 
 export async function GET() {
   try {
@@ -18,18 +17,23 @@ export async function GET() {
     const attendance =
       await prisma.attendance.findMany();
 
-    type GradeRow = Prisma.GradeGetPayload<{}>;
-    type AttendanceRow = Prisma.AttendanceGetPayload<{}>;
-
     const averageGrade =
       grades.length > 0
-        ? grades.reduce((acc: number, item: GradeRow) => acc + item.score, 0) / grades.length
+        ? grades.reduce(
+            (acc, item) =>
+              acc + item.score,
+            0
+          ) / grades.length
         : 0;
 
     const attendanceRate =
       attendance.length > 0
         ? (
-            (attendance.filter((a: AttendanceRow) => a.status === "PRESENT").length /
+            (attendance.filter(
+              (a) =>
+                a.status ===
+                "PRESENT"
+            ).length /
               attendance.length) *
             100
           ).toFixed(1)
@@ -39,6 +43,7 @@ export async function GET() {
       students,
       teachers,
       classes,
+
       averageGrade:
         averageGrade.toFixed(1),
 

@@ -1,4 +1,6 @@
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
+import { ZodError } from "zod";
 
 import { createClassSchema } from "@/lib/validations/class";
 
@@ -47,6 +49,30 @@ export async function POST(
     return Response.json(newClass);
 
   } catch (error) {
+    if (error instanceof ZodError) {
+      return Response.json(
+        {
+          error: error.issues[0]?.message || "Invalid class payload",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === "P2003") {
+        return Response.json(
+          {
+            error: "Selected academic year does not exist",
+          },
+          {
+            status: 400,
+          }
+        );
+      }
+    }
+
     return Response.json(
       {
         error: "Failed to create class",
