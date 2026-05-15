@@ -3,6 +3,8 @@ import { Prisma } from "@prisma/client";
 
 type InvoiceRow = Prisma.InvoiceGetPayload<{}>;
 
+export const dynamic = "force-dynamic";
+
 export default async function FinancePage() {
   const invoices =
     await prisma.invoice.findMany();

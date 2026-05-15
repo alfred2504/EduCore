@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 
 export async function GET() {
   try {
@@ -17,7 +18,8 @@ export async function GET() {
     const attendance =
       await prisma.attendance.findMany();
 
-    type GradeRow = (typeof grades)[number];
+    type GradeRow = Prisma.GradeGetPayload<{}>;
+    type AttendanceRow = Prisma.AttendanceGetPayload<{}>;
 
     const averageGrade =
       grades.length > 0
@@ -27,11 +29,7 @@ export async function GET() {
     const attendanceRate =
       attendance.length > 0
         ? (
-            (attendance.filter(
-              (a) =>
-                a.status ===
-                "PRESENT"
-            ).length /
+            (attendance.filter((a: AttendanceRow) => a.status === "PRESENT").length /
               attendance.length) *
             100
           ).toFixed(1)
