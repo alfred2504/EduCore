@@ -17,13 +17,11 @@ export async function GET() {
     const attendance =
       await prisma.attendance.findMany();
 
+    type GradeRow = (typeof grades)[number];
+
     const averageGrade =
       grades.length > 0
-        ? grades.reduce(
-            (acc, item) =>
-              acc + item.score,
-            0
-          ) / grades.length
+        ? grades.reduce((acc: number, item: GradeRow) => acc + item.score, 0) / grades.length
         : 0;
 
     const attendanceRate =
