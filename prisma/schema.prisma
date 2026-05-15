@@ -30,6 +30,7 @@ model User {
   email     String   @unique
   password  String
   role      Role     @default(STUDENT)
+  status    String   @default("PENDING")
   createdAt DateTime @default(now())
 
   student Student?
@@ -103,7 +104,11 @@ model Student {
 
   grades          Grade[]
 
+  invoices        Invoice[]
+
   attendances     Attendance[]
+
+  parents         StudentParent[]
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -204,6 +209,124 @@ model AuditLog {
   action    String
 
   userEmail String
+
+  createdAt DateTime @default(now())
+}
+
+model Invoice {
+  id        String   @id @default(cuid())
+
+  invoiceNo String   @unique
+
+  studentId String
+
+  student   Student  @relation(fields: [studentId], references: [id])
+
+  amount    Float
+
+  status    String
+
+  dueDate   DateTime
+
+  payments  Payment[]
+
+  createdAt DateTime @default(now())
+}
+
+model Payment {
+  id        String   @id @default(cuid())
+
+  invoiceId String
+
+  invoice   Invoice  @relation(fields: [invoiceId], references: [id])
+
+  amount    Float
+
+  method    String
+
+  paidAt    DateTime @default(now())
+}
+
+model Expense {
+  id        String   @id @default(cuid())
+
+  title     String
+
+  amount    Float
+
+  category  String
+
+  createdAt DateTime @default(now())
+}
+
+model Vendor {
+  id        String   @id @default(cuid())
+
+  name      String
+
+  email     String?
+
+  phone     String?
+
+  procurementRequests ProcurementRequest[]
+
+  createdAt DateTime @default(now())
+}
+
+model ProcurementRequest {
+  id          String   @id @default(cuid())
+
+  title       String
+
+  description String?
+
+  amount      Float
+
+  status      String
+
+  vendorId    String?
+
+  vendor      Vendor?  @relation(fields: [vendorId], references: [id])
+
+  createdAt   DateTime @default(now())
+}
+
+model Parent {
+  id        String   @id @default(cuid())
+
+  firstName String
+
+  lastName  String
+
+  email     String   @unique
+
+  phone     String?
+
+  students  StudentParent[]
+
+  createdAt DateTime @default(now())
+}
+
+model StudentParent {
+  id        String   @id @default(cuid())
+
+  studentId String
+
+  parentId  String
+
+  student   Student  @relation(fields: [studentId], references: [id])
+
+  parent    Parent   @relation(fields: [parentId], references: [id])
+}
+
+model Media {
+  id        String   @id @default(cuid())
+
+  fileName  String
+
+  fileUrl   String
+
+  fileType  String
 
   createdAt DateTime @default(now())
 }

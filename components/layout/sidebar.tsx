@@ -5,7 +5,9 @@ import { usePathname } from "next/navigation";
 
 import {
   LayoutDashboard,
+  DollarSign,
   Users,
+  ShoppingCart,
   GraduationCap,
   ClipboardList,
   BookOpen,
@@ -87,6 +89,36 @@ const menuItems = [
     title: "Teachers",
     href: "/dashboard/teachers",
     icon: GraduationCap,
+    roles: [
+      "SYSTEM_ADMIN",
+      "SCHOOL_ADMIN",
+    ],
+  },
+
+  {
+    title: "Finance",
+    href: "/dashboard/finance",
+    icon: DollarSign,
+    roles: [
+      "SYSTEM_ADMIN",
+      "SCHOOL_ADMIN",
+    ],
+  },
+
+  {
+    title: "Procurement",
+    href: "/dashboard/procurement",
+    icon: ShoppingCart,
+    roles: [
+      "SYSTEM_ADMIN",
+      "SCHOOL_ADMIN",
+    ],
+  },
+
+  {
+    title: "Parents",
+    href: "/dashboard/parents",
+    icon: Users,
     roles: [
       "SYSTEM_ADMIN",
       "SCHOOL_ADMIN",
