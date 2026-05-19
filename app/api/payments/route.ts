@@ -1,14 +1,14 @@
 import { prisma } from "@/lib/prisma";
 
 export async function GET() {
-  const parents =
-    await prisma.parent.findMany({
+  const payments =
+    await prisma.payment.findMany({
       include: {
-        students: true,
+        invoice: true,
       },
     });
 
-  return Response.json(parents);
+  return Response.json(payments);
 }
 
 export async function POST(
@@ -16,10 +16,10 @@ export async function POST(
 ) {
   const body = await req.json();
 
-  const parent =
-    await prisma.parent.create({
+  const payment =
+    await prisma.payment.create({
       data: body,
     });
 
-  return Response.json(parent);
+  return Response.json(payment);
 }

@@ -1,11 +1,19 @@
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 
-type ProcurementRequestRow = Prisma.ProcurementRequestGetPayload<{}>;
+type ProcurementRequestWithVendor = Prisma.ProcurementRequestGetPayload<{
+  include: {
+    vendor: true;
+  };
+}>;
 
 export default async function ProcurementPage() {
-  const requests =
-    await prisma.procurementRequest.findMany();
+  const procurementRequests =
+    await prisma.procurementRequest.findMany({
+      include: {
+        vendor: true,
+      },
+    });
 
   return (
     <div className="space-y-8">
@@ -14,32 +22,77 @@ export default async function ProcurementPage() {
           Procurement
         </h1>
 
-        <p className="mt-2 text-slate-500">
+        <p className="mt-1 text-slate-500">
           Procurement management
         </p>
       </div>
 
-      <div className="rounded-2xl bg-white p-6 shadow-sm dark:bg-[#111827]">
-        <h2 className="text-2xl font-bold">
-          Requests
-        </h2>
+      <div className="overflow-hidden rounded-2xl border bg-white shadow-sm dark:bg-[#111827]">
+        <table className="w-full">
+          <thead className="border-b bg-slate-50 dark:bg-[#1f2937]">
+            <tr>
+              <th className="px-6 py-4 text-left">
+                Item
+              </th>
 
-        <div className="mt-6 space-y-4">
-          {requests.map((item: ProcurementRequestRow) => (
-            <div
-              key={item.id}
-              className="rounded-xl border border-slate-200 p-4 dark:border-slate-700"
-            >
-              <h3 className="font-semibold">
-                {item.title}
-              </h3>
+              <th className="px-6 py-4 text-left">
+                Supplier
+              </th>
 
-              <p className="mt-1 text-sm text-slate-500">
-                ${item.amount}
-              </p>
-            </div>
-          ))}
-        </div>
+              <th className="px-6 py-4 text-left">
+                Quantity
+              </th>
+
+              <th className="px-6 py-4 text-left">
+                Status
+              </th>
+
+              <th className="px-6 py-4 text-left">
+                Cost
+              </th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {procurementRequests.map((request: ProcurementRequestWithVendor) => (
+              <tr
+                key={request.id}
+                className="border-b"
+              >
+                <td className="px-6 py-4">
+                  {request.title}
+                </td>
+
+                <td className="px-6 py-4">
+                  {request.vendor?.name ?? "Unassigned"}
+                </td>
+
+                <td className="px-6 py-4">
+                  {request.description ?? "-"}
+                </td>
+
+                <td className="px-6 py-4">
+                  {request.status}
+                </td>
+
+                <td className="px-6 py-4">
+                  ${request.amount}
+                </td>
+              </tr>
+            ))}
+
+            {procurementRequests.length === 0 && (
+              <tr>
+                <td
+                  colSpan={5}
+                  className="px-6 py-12 text-center text-slate-500"
+                >
+                  No procurement requests found
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
       </div>
     </div>
   );

@@ -56,6 +56,7 @@ export default function LoginPage() {
           <input
             type="password"
             placeholder="Password"
+            autoComplete="current-password"
             className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-white"
             value={password}
             onChange={(e) => setPassword(e.target.value)}

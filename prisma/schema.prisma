@@ -216,8 +216,6 @@ model AuditLog {
 model Invoice {
   id        String   @id @default(cuid())
 
-  invoiceNo String   @unique
-
   studentId String
 
   student   Student  @relation(fields: [studentId], references: [id])
@@ -228,9 +226,9 @@ model Invoice {
 
   dueDate   DateTime
 
-  payments  Payment[]
-
   createdAt DateTime @default(now())
+
+  payments  Payment[]
 }
 
 model Payment {
@@ -244,7 +242,7 @@ model Payment {
 
   method    String
 
-  paidAt    DateTime @default(now())
+  createdAt DateTime @default(now())
 }
 
 model Expense {

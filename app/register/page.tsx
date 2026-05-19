@@ -7,6 +7,7 @@ export default function RegisterPage() {
   const router = useRouter();
 
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const [formData, setFormData] = useState({
     name: "",
@@ -19,6 +20,7 @@ export default function RegisterPage() {
     e.preventDefault();
 
     setLoading(true);
+    setErrorMessage("");
 
     const res = await fetch("/api/register", {
       method: "POST",
@@ -33,7 +35,10 @@ export default function RegisterPage() {
     setLoading(false);
 
     if (!res.ok) {
-      alert("Something went wrong");
+      const payload = await res.json().catch(() => null);
+      setErrorMessage(
+        payload?.error ?? "Something went wrong while creating the account"
+      );
       return;
     }
 
@@ -56,6 +61,12 @@ export default function RegisterPage() {
           Register as a teacher or student. Admin approval is required before
           login.
         </p>
+
+        {errorMessage ? (
+          <p className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900/40 dark:bg-red-950/30 dark:text-red-300">
+            {errorMessage}
+          </p>
+        ) : null}
 
         <form onSubmit={handleRegister} className="mt-6 space-y-4">
           <input
@@ -87,6 +98,7 @@ export default function RegisterPage() {
           <input
             type="password"
             placeholder="Password"
+            autoComplete="new-password"
             className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-white"
             value={formData.password}
             onChange={(e) =>

@@ -137,16 +137,6 @@ const menuItems = [
   },
 
   {
-    title: "Procurement",
-    href: "/dashboard/procurement",
-    icon: Package,
-    roles: [
-      "SYSTEM_ADMIN",
-      "SCHOOL_ADMIN",
-    ],
-  },
-
-  {
     title: "AI Insights",
     href: "/dashboard/analytics",
     icon: BrainCircuit,
