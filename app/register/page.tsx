@@ -8,6 +8,7 @@ export default function RegisterPage() {
 
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
   const [formData, setFormData] = useState({
     name: "",
@@ -21,6 +22,7 @@ export default function RegisterPage() {
 
     setLoading(true);
     setErrorMessage("");
+    setSuccessMessage("");
 
     const res = await fetch("/api/register", {
       method: "POST",
@@ -41,6 +43,25 @@ export default function RegisterPage() {
       );
       return;
     }
+
+    const payload = await res.json().catch(() => null);
+    const accountStatus = payload?.status ?? "PENDING";
+
+    if (formData.role === "TEACHER") {
+      setSuccessMessage(
+        `Teacher registered successfully. Account status: ${accountStatus}.`
+      );
+
+      setTimeout(() => {
+        router.push("/login");
+      }, 1600);
+
+      return;
+    }
+
+    setSuccessMessage(
+      `Registration successful. Account status: ${accountStatus}.`
+    );
 
     // Redirect students to fill in their info; teachers go straight to login
     if (formData.role === "STUDENT") {
@@ -65,6 +86,12 @@ export default function RegisterPage() {
         {errorMessage ? (
           <p className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900/40 dark:bg-red-950/30 dark:text-red-300">
             {errorMessage}
+          </p>
+        ) : null}
+
+        {successMessage ? (
+          <p className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-950/30 dark:text-emerald-300">
+            {successMessage}
           </p>
         ) : null}
 
