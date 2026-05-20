@@ -20,7 +20,7 @@ export async function GET() {
     const averageGrade =
       grades.length > 0
         ? grades.reduce(
-            (acc, item) =>
+            (acc: number, item: { score: number }) =>
               acc + item.score,
             0
           ) / grades.length
