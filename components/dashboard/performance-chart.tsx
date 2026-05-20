@@ -38,7 +38,7 @@ const data = [
 
 export function PerformanceChart() {
   return (
-    <div className="rounded-2xl bg-white p-6 shadow-sm dark:bg-[#111827]">
+    <div className="min-w-0 min-h-0 rounded-2xl bg-white p-6 shadow-sm dark:bg-[#111827]">
       <div className="mb-6">
         <h2 className="text-xl font-semibold">
           Academic Performance
@@ -49,7 +49,7 @@ export function PerformanceChart() {
         </p>
       </div>
 
-      <div className="h-[300px]">
+      <div className="h-[300px] min-h-0">
         <ResponsiveContainer
           width="100%"
           height="100%"

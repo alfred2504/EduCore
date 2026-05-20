@@ -2,22 +2,43 @@ import Link from "next/link";
 
 import { prisma } from "@/lib/prisma";
 
+interface ClassItem {
+  id: string;
+  name: string;
+  level: string;
+  capacity: number | null;
+  students: {
+    id: string;
+  }[];
+}
+
 export default async function ClassesPage() {
-  const classes =
-    await prisma.class.findMany({
-      include: {
-        students: true,
-        academicYear: true,
-      },
-    });
+  const classesRaw = await prisma.class.findMany({
+    include: {
+      students: true,
+      academicYear: true,
+    },
+  });
+
+  const classes = classesRaw.map((c) => ({
+    id: c.id,
+    name: c.name,
+    level: c.level,
+    capacity: c.capacity as number | null,
+    students: (c.students || []).map((s) => ({ id: s.id })),
+  })) as ClassItem[];
 
   const academicYears =
     await prisma.academicYear.findMany();
 
   const totalStudents =
     classes.reduce(
-      (acc, item) =>
-        acc + item.students.length,
+      (
+        acc: number,
+        item: ClassItem
+      ) =>
+        acc +
+        item.students.length,
       0
     );
 
@@ -91,36 +112,38 @@ export default async function ClassesPage() {
           </thead>
 
           <tbody>
-            {classes.map((item) => (
-              <tr
-                key={item.id}
-                className="border-b border-slate-100 dark:border-slate-800"
-              >
-                <td className="px-6 py-4">
-                  <Link
-                    href={`/dashboard/classes/${item.id}`}
-                    className="font-medium text-blue-600 hover:underline"
-                  >
-                    {item.name}
-                  </Link>
-                </td>
+            {classes.map(
+              (item: ClassItem) => (
+                <tr
+                  key={item.id}
+                  className="border-b border-slate-100 dark:border-slate-800"
+                >
+                  <td className="px-6 py-4">
+                    <Link
+                      href={`/dashboard/classes/${item.id}`}
+                      className="font-medium text-blue-600 hover:underline"
+                    >
+                      {item.name}
+                    </Link>
+                  </td>
 
-                <td className="px-6 py-4">
-                  {item.level}
-                </td>
+                  <td className="px-6 py-4">
+                    {item.level}
+                  </td>
 
-                <td className="px-6 py-4">
-                  {
-                    item.students
-                      .length
-                  }
-                </td>
+                  <td className="px-6 py-4">
+                    {
+                      item.students
+                        .length
+                    }
+                  </td>
 
-                <td className="px-6 py-4">
-                  {item.capacity}
-                </td>
-              </tr>
-            ))}
+                  <td className="px-6 py-4">
+                    {item.capacity}
+                  </td>
+                </tr>
+              )
+            )}
           </tbody>
         </table>
       </div>
