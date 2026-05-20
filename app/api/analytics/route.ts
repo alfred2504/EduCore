@@ -17,27 +17,38 @@ export async function GET() {
     const attendance =
       await prisma.attendance.findMany();
 
+    // Calculate average grade
     const averageGrade =
       grades.length > 0
         ? grades.reduce(
-            (acc: number, item: { score: number }) =>
+            (
+              acc: number,
+              item: {
+                score: number;
+              }
+            ) =>
               acc + item.score,
             0
           ) / grades.length
         : 0;
 
+    // Calculate attendance rate
     const attendanceRate =
       attendance.length > 0
         ? (
             (attendance.filter(
-              (a) =>
+              (
+                a: {
+                  status: string;
+                }
+              ) =>
                 a.status ===
                 "PRESENT"
             ).length /
               attendance.length) *
             100
           ).toFixed(1)
-        : 0;
+        : "0";
 
     return Response.json({
       students,
@@ -51,6 +62,8 @@ export async function GET() {
     });
 
   } catch (error) {
+    console.error(error);
+
     return Response.json(
       {
         error:
