@@ -1,9 +1,12 @@
 import { prisma } from "@/lib/prisma";
-import { Prisma } from "@prisma/client";
 
-type InvoiceRow = Prisma.InvoiceGetPayload<{}>;
+interface InvoiceRow {
+  id: string;
+  amount: number;
+}
 
-export const dynamic = "force-dynamic";
+export const dynamic =
+  "force-dynamic";
 
 export default async function FinancePage() {
   const invoices =
@@ -11,7 +14,10 @@ export default async function FinancePage() {
 
   const totalRevenue =
     invoices.reduce(
-      (acc: number, item: InvoiceRow) =>
+      (
+        acc: number,
+        item: InvoiceRow
+      ) =>
         acc + item.amount,
       0
     );
@@ -45,7 +51,10 @@ export default async function FinancePage() {
           </p>
 
           <h2 className="mt-2 text-4xl font-bold">
-            ${totalRevenue}
+            $
+            {totalRevenue.toFixed(
+              2
+            )}
           </h2>
         </div>
       </div>
