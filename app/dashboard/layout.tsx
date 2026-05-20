@@ -6,6 +6,11 @@ import { authOptions } from "@/lib/auth";
 import { Sidebar } from "./sidebar";
 import { Topbar } from "@/components/layout/topbar";
 
+type DashboardSessionUser = {
+  name?: string | null;
+  role: string;
+};
+
 export default async function DashboardLayout({
   children,
 }: Readonly<{
@@ -17,8 +22,9 @@ export default async function DashboardLayout({
     redirect("/login");
   }
 
-  const name = session.user.name ?? "User";
-  const role = session.user.role;
+  const user = session.user as DashboardSessionUser;
+  const name = user.name ?? "User";
+  const role = user.role;
 
   return (
     <div className="flex min-h-screen bg-slate-50 dark:bg-[#0B1220]">

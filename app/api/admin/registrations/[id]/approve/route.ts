@@ -10,7 +10,7 @@ export async function POST(
 ) {
   const session = await getServerSession(authOptions);
 
-  if (session?.user.role !== "SYSTEM_ADMIN") {
+  if (!session?.user || session.user.role !== "SYSTEM_ADMIN") {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 

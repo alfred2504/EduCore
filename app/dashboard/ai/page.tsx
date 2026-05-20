@@ -17,8 +17,10 @@ async function getInsights() {
     }
 
     return json;
-  } catch (err: any) {
-    return { error: err?.message ?? String(err) };
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+
+    return { error: message };
   }
 }
 
