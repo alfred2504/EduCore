@@ -1,10 +1,12 @@
-import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { openai } from "@/lib/openai";
 
-type StudentWithRelations = Prisma.StudentGetPayload<{
-  include: { grades: true; attendances: true };
-}>;
+type StudentWithRelations = {
+  firstName: string;
+  lastName: string;
+  grades: Array<{ score: number }>;
+  attendances: Array<unknown>;
+};
 
 function buildLocalInsights(
   summary: Array<{ name: string; averageGrade: number; attendance: number }>
@@ -48,15 +50,16 @@ export async function GET() {
       return Response.json({ error: "OpenAI API key not configured" }, { status: 500 });
     }
 
-    const students = await prisma.student.findMany({
+    const students = (await prisma.student.findMany({
       include: { grades: true, attendances: true },
-    });
+    })) as StudentWithRelations[];
 
     const summary = students.map((student: StudentWithRelations) => ({
       name: student.firstName + " " + student.lastName,
       averageGrade:
         student.grades.length > 0
-          ? student.grades.reduce((acc, g) => acc + g.score, 0) / student.grades.length
+          ? student.grades.reduce((acc: number, g: { score: number }) => acc + g.score, 0) /
+            student.grades.length
           : 0,
       attendance: (student.attendances as any)?.length ?? 0,
     }));
