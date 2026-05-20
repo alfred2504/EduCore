@@ -1,5 +1,10 @@
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { openai } from "@/lib/openai";
+
+type StudentWithRelations = Prisma.StudentGetPayload<{
+  include: { grades: true; attendances: true };
+}>;
 
 function buildLocalInsights(
   summary: Array<{ name: string; averageGrade: number; attendance: number }>
@@ -47,7 +52,7 @@ export async function GET() {
       include: { grades: true, attendances: true },
     });
 
-    const summary = students.map((student) => ({
+    const summary = students.map((student: StudentWithRelations) => ({
       name: student.firstName + " " + student.lastName,
       averageGrade:
         student.grades.length > 0
