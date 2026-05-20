@@ -55,23 +55,3 @@ export default async function ManageTeachersPage() {
     </div>
   );
 }
-
-function PromoteButton({ userId }: { userId: string }) {
-  'use client';
-  const promote = async () => {
-    const res = await fetch('/api/admin/promote-teacher', { method: 'POST', body: JSON.stringify({ userId }) });
-    if (!res.ok) {
-      const p = await res.json().catch(() => null);
-      alert(p?.error ?? 'Failed to promote');
-      return;
-    }
-    alert('Promoted to teacher');
-    window.location.reload();
-  };
-
-  return (
-    <button onClick={promote} className="rounded bg-blue-600 px-3 py-1 text-white">
-      Promote
-    </button>
-  );
-}
