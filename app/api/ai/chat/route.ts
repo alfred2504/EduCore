@@ -1,5 +1,49 @@
 import { openai } from "@/lib/openai";
 
+type OpenAIChatCompletionLike = {
+  choices?: Array<{
+    message?: {
+      content?: string | null;
+    };
+  }>;
+  output?: Array<{
+    content?: Array<{
+      text?: string | null;
+    }>;
+  }>;
+};
+
+type ErrorLike = {
+  message?: string;
+  status?: number;
+  response?: {
+    status?: number;
+    data?: unknown;
+  };
+};
+
+function getOpenAIReply(result: unknown) {
+  const completion = result as OpenAIChatCompletionLike;
+
+  return (
+    completion.choices?.[0]?.message?.content ??
+    completion.output?.[0]?.content?.[0]?.text ??
+    null
+  );
+}
+
+function getErrorStatus(error: unknown) {
+  const knownError = error as ErrorLike;
+
+  return knownError.status ?? knownError.response?.status;
+}
+
+function getErrorDetail(error: unknown) {
+  const knownError = error as ErrorLike;
+
+  return knownError.response?.data ?? knownError.response ?? null;
+}
+
 function buildLocalChatReply(message: string) {
   const snippet = (message || "").slice(0, 300);
   return (
@@ -13,7 +57,8 @@ export async function POST(
   req: Request
 ) {
   try {
-    const body = await req.json();
+    const body = (await req.json()) as { message?: string };
+    const message = body.message ?? "";
 
     if (!process.env.OPENAI_API_KEY) {
       console.error("OPENAI_API_KEY not set");
@@ -24,8 +69,8 @@ export async function POST(
       Boolean
     ) as string[];
 
-    let completion: any = null;
-    let lastError: any = null;
+    let completion: unknown = null;
+    let lastError: unknown = null;
 
     for (const model of [...new Set(modelsToTry)]) {
       try {
@@ -36,43 +81,40 @@ export async function POST(
               role: "system",
               content: "You are EduCore AI Assistant.",
             },
-            { role: "user", content: body.message },
+            { role: "user", content: message },
           ],
         });
         break;
-      } catch (err: any) {
+      } catch (err: unknown) {
         lastError = err;
       }
     }
 
     if (!completion) {
-      const status = lastError?.status ?? lastError?.response?.status;
-      const messageText = String(lastError?.message ?? "").toLowerCase();
+      const status = getErrorStatus(lastError);
+      const messageText = String((lastError as ErrorLike)?.message ?? "").toLowerCase();
       const isQuotaError = status === 429 || messageText.includes("quota") || messageText.includes("billing");
 
       if (isQuotaError) {
-        return Response.json({ reply: buildLocalChatReply(body.message), fallback: "local", reason: "quota" });
+        return Response.json({ reply: buildLocalChatReply(message), fallback: "local", reason: "quota" });
       }
 
       throw lastError ?? new Error("No OpenAI model call succeeded");
     }
 
-    const reply =
-      completion?.choices?.[0]?.message?.content ??
-      (completion as any)?.output?.[0]?.content?.[0]?.text ??
-      null;
+    const reply = getOpenAIReply(completion);
 
     return Response.json({ reply });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("/api/ai/chat error:", error);
 
-    const detail =
-      error?.response?.data ?? error?.response ?? null;
+    const detail = getErrorDetail(error);
+    const knownError = error as ErrorLike;
 
     return Response.json(
       {
-        error: error?.message ?? String(error),
-        status: error?.response?.status ?? 500,
+        error: knownError.message ?? String(error),
+        status: knownError.response?.status ?? 500,
         detail,
       },
       { status: 500 }

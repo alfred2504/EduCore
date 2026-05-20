@@ -5,8 +5,52 @@ type StudentWithRelations = {
   firstName: string;
   lastName: string;
   grades: Array<{ score: number }>;
-  attendances: Array<unknown>;
+  attendances: Array<{ status: "PRESENT" | "ABSENT" | "LATE" }>;
 };
+
+type OpenAIInsightsCompletionLike = {
+  choices?: Array<{
+    message?: {
+      content?: string | null;
+    };
+  }>;
+  output?: Array<{
+    content?: Array<{
+      text?: string | null;
+    }>;
+  }>;
+};
+
+type ErrorLike = {
+  message?: string;
+  status?: number;
+  response?: {
+    status?: number;
+    data?: unknown;
+  };
+};
+
+function getOpenAIInsights(result: unknown) {
+  const completion = result as OpenAIInsightsCompletionLike;
+
+  return (
+    completion.choices?.[0]?.message?.content ??
+    completion.output?.[0]?.content?.[0]?.text ??
+    null
+  );
+}
+
+function getErrorStatus(error: unknown) {
+  const knownError = error as ErrorLike;
+
+  return knownError.status ?? knownError.response?.status;
+}
+
+function getErrorDetail(error: unknown) {
+  const knownError = error as ErrorLike;
+
+  return knownError.response?.data ?? knownError.response ?? null;
+}
 
 function buildLocalInsights(
   summary: Array<{ name: string; averageGrade: number; attendance: number }>
@@ -61,15 +105,19 @@ export async function GET() {
           ? student.grades.reduce((acc: number, g: { score: number }) => acc + g.score, 0) /
             student.grades.length
           : 0,
-      attendance: (student.attendances as any)?.length ?? 0,
+      attendance:
+        student.attendances.length > 0
+          ? student.attendances.filter((attendance) => attendance.status !== "ABSENT").length /
+            student.attendances.length
+          : 0,
     }));
 
     const modelsToTry = [process.env.OPENAI_MODEL, "gpt-4o-mini", "gpt-4.1-mini"].filter(
       Boolean
     ) as string[];
 
-    let completion: any = null;
-    let lastError: any = null;
+    let completion: unknown = null;
+    let lastError: unknown = null;
 
     for (const model of [...new Set(modelsToTry)]) {
       try {
@@ -84,14 +132,14 @@ export async function GET() {
           ],
         });
         break;
-      } catch (err: any) {
+      } catch (err: unknown) {
         lastError = err;
       }
     }
 
     if (!completion) {
-      const status = lastError?.status ?? lastError?.response?.status;
-      const message = String(lastError?.message ?? "").toLowerCase();
+      const status = getErrorStatus(lastError);
+      const message = String((lastError as ErrorLike)?.message ?? "").toLowerCase();
       const isQuotaError = status === 429 || message.includes("quota") || message.includes("billing");
 
       if (isQuotaError) {
@@ -101,21 +149,19 @@ export async function GET() {
       throw lastError ?? new Error("No OpenAI model call succeeded");
     }
 
-    const insights =
-      completion?.choices?.[0]?.message?.content ??
-      (completion as any)?.output?.[0]?.content?.[0]?.text ??
-      null;
+    const insights = getOpenAIInsights(completion);
 
     return Response.json({ insights });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("/api/ai/insights error:", error);
 
-    const detail = error?.response?.data ?? error?.response ?? null;
+    const detail = getErrorDetail(error);
+    const knownError = error as ErrorLike;
 
     return Response.json(
       {
-        error: error?.message ?? String(error),
-        status: error?.response?.status ?? 500,
+        error: knownError.message ?? String(error),
+        status: knownError.response?.status ?? 500,
         detail,
       },
       { status: 500 }
