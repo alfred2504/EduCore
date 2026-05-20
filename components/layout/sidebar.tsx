@@ -13,6 +13,7 @@ import {
   BookOpen,
   Package,
   BrainCircuit,
+  Shield,
   Settings,
 } from "lucide-react";
 
@@ -150,6 +151,15 @@ const menuItems = [
     title: "Settings",
     href: "/dashboard/settings",
     icon: Settings,
+    roles: [
+      "SYSTEM_ADMIN",
+    ],
+  },
+
+  {
+    title: "Audit Logs",
+    href: "/dashboard/audit",
+    icon: Shield,
     roles: [
       "SYSTEM_ADMIN",
     ],
