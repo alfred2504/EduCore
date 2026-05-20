@@ -2,31 +2,60 @@ import Link from "next/link";
 
 import { prisma } from "@/lib/prisma";
 
+interface StudentItem {
+  id: string;
+}
+
 interface ClassItem {
   id: string;
   name: string;
   level: string;
   capacity: number | null;
-  students: {
-    id: string;
-  }[];
+  students: StudentItem[];
 }
 
 export default async function ClassesPage() {
-  const classesRaw = await prisma.class.findMany({
-    include: {
-      students: true,
-      academicYear: true,
-    },
-  });
+  const classesRaw =
+    await prisma.class.findMany({
+      include: {
+        students: true,
+        academicYear: true,
+      },
+    });
 
-  const classes = classesRaw.map((c) => ({
-    id: c.id,
-    name: c.name,
-    level: c.level,
-    capacity: c.capacity as number | null,
-    students: (c.students || []).map((s) => ({ id: s.id })),
-  })) as ClassItem[];
+  const classes =
+    classesRaw.map(
+      (
+        c: {
+          id: string;
+          name: string;
+          level: string;
+          capacity: number | null;
+          students: {
+            id: string;
+          }[];
+        }
+      ) => ({
+        id: c.id,
+
+        name: c.name,
+
+        level: c.level,
+
+        capacity: c.capacity,
+
+        students:
+          (c.students || []).map(
+            (
+              s: {
+                id: string;
+              }
+            ) => ({
+              id: s.id,
+            })
+          ),
+      })
+    ) as ClassItem[];
 
   const academicYears =
     await prisma.academicYear.findMany();
@@ -113,7 +142,9 @@ export default async function ClassesPage() {
 
           <tbody>
             {classes.map(
-              (item: ClassItem) => (
+              (
+                item: ClassItem
+              ) => (
                 <tr
                   key={item.id}
                   className="border-b border-slate-100 dark:border-slate-800"
@@ -139,7 +170,8 @@ export default async function ClassesPage() {
                   </td>
 
                   <td className="px-6 py-4">
-                    {item.capacity}
+                    {item.capacity ??
+                      "N/A"}
                   </td>
                 </tr>
               )
