@@ -5,19 +5,34 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { ApprovalManager } from "@/components/admin/approval-manager";
 
+interface PendingUser {
+  id: string;
+  name: string | null;
+  email: string;
+  role: string;
+  createdAt: Date;
+}
+
 export default async function ApprovalsPage() {
-  const session = await getServerSession(authOptions);
+  const session =
+    await getServerSession(
+      authOptions
+    );
 
   if (!session?.user) {
     redirect("/login");
   }
 
-  if (session.user.role !== "SYSTEM_ADMIN") {
+  if (
+    session.user.role !==
+    "SYSTEM_ADMIN"
+  ) {
     return (
       <div className="rounded-2xl bg-white p-6 shadow-sm dark:bg-[#111827]">
         <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
           Access denied
         </h1>
+
         <p className="mt-2 text-slate-500">
           Only Alfred Makura can manage approvals and admin invites.
         </p>
@@ -25,27 +40,46 @@ export default async function ApprovalsPage() {
     );
   }
 
-  const pendingUsers = await prisma.user.findMany({
-    where: {
-      status: "PENDING",
-      role: {
-        in: ["TEACHER", "STUDENT"],
+  const pendingUsers =
+    await prisma.user.findMany({
+      where: {
+        status: "PENDING",
+
+        role: {
+          in: [
+            "TEACHER",
+            "STUDENT",
+          ],
+        },
       },
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
+
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
 
   return (
     <ApprovalManager
-      pendingUsers={pendingUsers.map((user) => ({
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        createdAt: user.createdAt.toISOString(),
-      }))}
+      pendingUsers={pendingUsers.map(
+        (
+          user: PendingUser
+        ) => ({
+          id: user.id,
+
+          name:
+            user.name ??
+            "Unknown User",
+
+          email:
+            user.email,
+
+          role:
+            user.role,
+
+          createdAt:
+            user.createdAt.toISOString(),
+        })
+      )}
     />
   );
 }
