@@ -1,87 +1,134 @@
 import { prisma } from "@/lib/prisma";
 
 export async function AnalyticsCards() {
-  const students =
+  const totalStudents =
     await prisma.student.count();
 
-  const teachers =
+  const activeStudents =
+    await prisma.student.count({
+      where: {
+        user: {
+          status: "ACTIVE",
+        },
+      },
+    });
+
+  const inactiveStudents =
+    totalStudents - activeStudents;
+
+  const totalTeachers =
     await prisma.teacher.count();
 
-  const classes =
-    await prisma.class.count();
+  const activeTeachers =
+    await prisma.teacher.count({
+      where: {
+        user: {
+          status: "ACTIVE",
+        },
+      },
+    });
 
-  const grades =
-    await prisma.grade.findMany();
+  const inactiveTeachers =
+    totalTeachers - activeTeachers;
 
-  const attendance =
-    await prisma.attendance.findMany();
+  // Admin count (users with role SYSTEM_ADMIN or SCHOOL_ADMIN)
+  const totalAdmins =
+    await prisma.user.count({
+      where: {
+        role: {
+          in: ["SYSTEM_ADMIN", "SCHOOL_ADMIN"],
+        },
+      },
+    });
 
-  const avgGrade =
-    grades.length > 0
-      ? grades.reduce(
-          (acc, item) =>
-            acc + item.score,
-          0
-        ) / grades.length
-      : 0;
+  const activeAdmins =
+    await prisma.user.count({
+      where: {
+        role: {
+          in: ["SYSTEM_ADMIN", "SCHOOL_ADMIN"],
+        },
+        status: "ACTIVE",
+      },
+    });
 
-  const attendanceRate =
-    attendance.length > 0
-      ? (
-          (attendance.filter(
-            (a) =>
-              a.status ===
-              "PRESENT"
-          ).length /
-            attendance.length) *
-          100
-        ).toFixed(1)
-      : "0";
+  const inactiveAdmins =
+    totalAdmins - activeAdmins;
 
   return (
-    <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-      {/* Students */}
+    <div className="grid gap-6 md:grid-cols-3">
+      {/* Students Card */}
       <div className="rounded-2xl bg-white p-6 shadow-sm dark:bg-[#111827]">
-        <p className="text-sm text-slate-500">
-          Students
-        </p>
-
-        <h2 className="mt-2 text-4xl font-bold">
-          {students}
-        </h2>
+        <div className="flex items-start justify-between">
+          <div>
+            <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
+              Total Students
+            </p>
+            <h2 className="mt-3 text-4xl font-bold text-slate-900 dark:text-white">
+              {totalStudents}
+            </h2>
+            <div className="mt-4 space-y-1 text-xs text-slate-500">
+              <div className="flex justify-between">
+                <span>Active / Inactive:</span>
+                <span className="font-medium">
+                  {activeStudents} / {inactiveStudents}
+                </span>
+              </div>
+            </div>
+          </div>
+          <div className="rounded-lg bg-green-100 p-2 dark:bg-green-900/20">
+            <div className="h-8 w-8 rounded bg-green-500/20"></div>
+          </div>
+        </div>
       </div>
 
-      {/* Teachers */}
+      {/* Teachers Card */}
       <div className="rounded-2xl bg-white p-6 shadow-sm dark:bg-[#111827]">
-        <p className="text-sm text-slate-500">
-          Teachers
-        </p>
-
-        <h2 className="mt-2 text-4xl font-bold">
-          {teachers}
-        </h2>
+        <div className="flex items-start justify-between">
+          <div>
+            <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
+              Total Teachers
+            </p>
+            <h2 className="mt-3 text-4xl font-bold text-slate-900 dark:text-white">
+              {totalTeachers}
+            </h2>
+            <div className="mt-4 space-y-1 text-xs text-slate-500">
+              <div className="flex justify-between">
+                <span>Active / Inactive:</span>
+                <span className="font-medium">
+                  {activeTeachers} / {inactiveTeachers}
+                </span>
+              </div>
+            </div>
+          </div>
+          <div className="rounded-lg bg-blue-100 p-2 dark:bg-blue-900/20">
+            <div className="h-8 w-8 rounded bg-blue-500/20"></div>
+          </div>
+        </div>
       </div>
 
-      {/* GPA */}
+      {/* Admin Staff Card */}
       <div className="rounded-2xl bg-white p-6 shadow-sm dark:bg-[#111827]">
-        <p className="text-sm text-slate-500">
-          Average Grade
-        </p>
-
-        <h2 className="mt-2 text-4xl font-bold">
-          {avgGrade.toFixed(1)}%
-        </h2>
-      </div>
-
-      {/* Attendance */}
-      <div className="rounded-2xl bg-white p-6 shadow-sm dark:bg-[#111827]">
-        <p className="text-sm text-slate-500">
-          Attendance Rate
-        </p>
-
-        <h2 className="mt-2 text-4xl font-bold">
-          {attendanceRate}%
-        </h2>
+        <div className="flex items-start justify-between">
+          <div>
+            <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
+              Total Admins
+            </p>
+            <h2 className="mt-3 text-4xl font-bold text-slate-900 dark:text-white">
+              {totalAdmins}
+            </h2>
+            <div className="mt-4 space-y-1 text-xs text-slate-500">
+              <div className="flex justify-between">
+                <span>Active / Inactive:</span>
+                <span className="font-medium">
+                  {activeAdmins} / {inactiveAdmins}
+                </span>
+              </div>
+            </div>
+          </div>
+          <div className="rounded-lg bg-purple-100 p-2 dark:bg-purple-900/20">
+            <div className="h-8 w-8 rounded bg-purple-500/20"></div>
+          </div>
+        </div>
       </div>
     </div>
   );

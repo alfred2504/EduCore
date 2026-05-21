@@ -1,11 +1,17 @@
 import { prisma } from "@/lib/prisma";
-import { Prisma } from "@prisma/client";
 
-type ProcurementRequestWithVendor = Prisma.ProcurementRequestGetPayload<{
-  include: {
-    vendor: true;
-  };
-}>;
+interface VendorItem {
+  name: string;
+}
+
+interface ProcurementRequestWithVendor {
+  id: string;
+  title: string;
+  description: string | null;
+  status: string;
+  amount: number;
+  vendor: VendorItem | null;
+}
 
 export default async function ProcurementPage() {
   const procurementRequests =
@@ -54,40 +60,52 @@ export default async function ProcurementPage() {
           </thead>
 
           <tbody>
-            {procurementRequests.map((request: ProcurementRequestWithVendor) => (
-              <tr
-                key={request.id}
-                className="border-b"
-              >
-                <td className="px-6 py-4">
-                  {request.title}
-                </td>
+            {procurementRequests.map(
+              (
+                request: ProcurementRequestWithVendor
+              ) => (
+                <tr
+                  key={request.id}
+                  className="border-b"
+                >
+                  <td className="px-6 py-4">
+                    {request.title}
+                  </td>
 
-                <td className="px-6 py-4">
-                  {request.vendor?.name ?? "Unassigned"}
-                </td>
+                  <td className="px-6 py-4">
+                    {request.vendor
+                      ?.name ??
+                      "Unassigned"}
+                  </td>
 
-                <td className="px-6 py-4">
-                  {request.description ?? "-"}
-                </td>
+                  <td className="px-6 py-4">
+                    {request.description ??
+                      "-"}
+                  </td>
 
-                <td className="px-6 py-4">
-                  {request.status}
-                </td>
+                  <td className="px-6 py-4">
+                    {request.status}
+                  </td>
 
-                <td className="px-6 py-4">
-                  ${request.amount}
-                </td>
-              </tr>
-            ))}
+                  <td className="px-6 py-4">
+                    $
+                    {request.amount.toFixed(
+                      2
+                    )}
+                  </td>
+                </tr>
+              )
+            )}
 
-            {procurementRequests.length === 0 && (
+            {procurementRequests.length ===
+              0 && (
               <tr>
                 <td
                   colSpan={5}
                   className="px-6 py-12 text-center text-slate-500"
                 >
-                  No procurement requests found
+                  No procurement requests
+                  found
                 </td>
               </tr>
             )}

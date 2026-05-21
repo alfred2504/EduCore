@@ -1,20 +1,21 @@
-import { AnalyticsCards } from "@/components/dashboard/analytics-cards";
+import { getServerSession } from "next-auth";
 
+import { authOptions } from "@/lib/auth";
+import { AnalyticsCards } from "@/components/dashboard/analytics-cards";
+import { WelcomeBanner } from "@/components/dashboard/welcome-banner";
 import { PerformanceChart } from "@/components/dashboard/performance-chart";
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const session =
+    await getServerSession(authOptions);
+
+  const userName =
+    session?.user?.name ?? "User";
+
   return (
     <div className="space-y-8">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
-          EduCore AI Dashboard
-        </h1>
-
-        <p className="mt-1 text-slate-500">
-          Intelligent educational analytics
-        </p>
-      </div>
+      {/* Welcome Banner */}
+      <WelcomeBanner name={userName} />
 
       {/* Analytics */}
       <AnalyticsCards />
