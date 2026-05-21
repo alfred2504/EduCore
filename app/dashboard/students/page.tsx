@@ -2,6 +2,15 @@ import Link from "next/link";
 
 import { prisma } from "@/lib/prisma";
 
+interface StudentItem {
+  id: string;
+  admissionNumber: string;
+  firstName: string;
+  lastName: string;
+  gender: string;
+  email: string | null;
+}
+
 export default async function StudentsPage() {
   const students =
     await prisma.student.findMany({
@@ -47,43 +56,55 @@ export default async function StudentsPage() {
           </thead>
 
           <tbody>
-            {students.map((student) => (
-              <tr
-                key={student.id}
-                className="border-b border-slate-100 transition hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-900"
-              >
-                {/* Admission Number */}
-                <td className="px-6 py-4 text-slate-700 dark:text-slate-300">
-                  {student.admissionNumber}
-                </td>
+            {students.map(
+              (
+                student: StudentItem
+              ) => (
+                <tr
+                  key={student.id}
+                  className="border-b border-slate-100 transition hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-900"
+                >
+                  {/* Admission Number */}
+                  <td className="px-6 py-4 text-slate-700 dark:text-slate-300">
+                    {
+                      student.admissionNumber
+                    }
+                  </td>
 
-                {/* Student Name */}
-                <td className="px-6 py-4">
-                  <Link
-                    href={`/dashboard/students/${student.id}`}
-                    className="font-medium text-blue-600 hover:underline"
-                  >
-                    {student.firstName}{" "}
-                    {student.lastName}
-                  </Link>
-                </td>
+                  {/* Student Name */}
+                  <td className="px-6 py-4">
+                    <Link
+                      href={`/dashboard/students/${student.id}`}
+                      className="font-medium text-blue-600 hover:underline"
+                    >
+                      {
+                        student.firstName
+                      }{" "}
+                      {
+                        student.lastName
+                      }
+                    </Link>
+                  </td>
 
-                {/* Gender */}
-                <td className="px-6 py-4 text-slate-700 dark:text-slate-300">
-                  {student.gender}
-                </td>
+                  {/* Gender */}
+                  <td className="px-6 py-4 text-slate-700 dark:text-slate-300">
+                    {student.gender}
+                  </td>
 
-                {/* Email */}
-                <td className="px-6 py-4 text-slate-700 dark:text-slate-300">
-                  {student.email || "-"}
-                </td>
-              </tr>
-            ))}
+                  {/* Email */}
+                  <td className="px-6 py-4 text-slate-700 dark:text-slate-300">
+                    {student.email ||
+                      "-"}
+                  </td>
+                </tr>
+              )
+            )}
           </tbody>
         </table>
 
         {/* Empty State */}
-        {students.length === 0 && (
+        {students.length ===
+          0 && (
           <div className="p-10 text-center text-slate-500">
             No students found
           </div>
