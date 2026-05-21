@@ -2,14 +2,14 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/get-session";
 import CreateTeacherButton from "./create-teacher-button";
-import type { Teacher, User } from "@prisma/client";
+import type { Prisma } from "@prisma/client";
 
 export default async function TeachersPage() {
-  const teachers: Teacher[] = await prisma.teacher.findMany({
+  const teachers: Prisma.Teacher[] = await prisma.teacher.findMany({
     orderBy: { createdAt: "desc" },
   });
 
-  const roleOnlyUsers: User[] = await prisma.user.findMany({
+  const roleOnlyUsers: Prisma.User[] = await prisma.user.findMany({
     where: {
       role: "TEACHER",
       teacher: { is: null },
@@ -25,7 +25,6 @@ export default async function TeachersPage() {
 
   return (
     <div className="space-y-8">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Teachers</h1>
@@ -40,7 +39,6 @@ export default async function TeachersPage() {
         </Link>
       </div>
 
-      {/* Table */}
       <div className="overflow-hidden rounded-2xl border bg-white shadow-sm dark:bg-[#111827]">
         <table className="w-full">
           <thead className="border-b bg-slate-50 dark:bg-[#1f2937]">
@@ -53,15 +51,13 @@ export default async function TeachersPage() {
           </thead>
 
           <tbody>
-            {teachers.map((teacher: Teacher) => (
+            {teachers.map((teacher) => (
               <tr key={teacher.id} className="border-b">
                 <td className="px-6 py-4">
                   {teacher.firstName} {teacher.lastName}
                 </td>
                 <td className="px-6 py-4">{teacher.email}</td>
-                <td className="px-6 py-4">
-                  {teacher.qualification ?? "-"}
-                </td>
+                <td className="px-6 py-4">{teacher.qualification ?? "-"}</td>
                 <td className="px-6 py-4">
                   <div className="flex gap-3">
                     <Link
@@ -81,7 +77,7 @@ export default async function TeachersPage() {
               </tr>
             ))}
 
-            {roleOnlyUsers.map((u: User) => (
+            {roleOnlyUsers.map((u) => (
               <tr key={u.id} className="border-b">
                 <td className="px-6 py-4">
                   {u.name}{" "}
@@ -107,10 +103,7 @@ export default async function TeachersPage() {
 
             {!anyRows && (
               <tr>
-                <td
-                  colSpan={4}
-                  className="px-6 py-12 text-center text-slate-500"
-                >
+                <td colSpan={4} className="px-6 py-12 text-center text-slate-500">
                   No teachers found
                 </td>
               </tr>
