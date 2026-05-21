@@ -1,37 +1,33 @@
+import Link from "next/link";
+
 import { prisma } from "@/lib/prisma";
 
-interface TeacherItem {
+interface StudentItem {
   id: string;
+  admissionNumber: string;
   firstName: string;
   lastName: string;
+  gender: string;
+  email: string | null;
 }
 
-interface SubjectItem {
-  id: string;
-  name: string;
-  code: string;
-  teacher: TeacherItem | null;
-}
-
-export default async function SubjectsPage() {
-  const subjects = await prisma.subject.findMany({
-    include: {
-      teacher: true,
-    },
-    orderBy: {
-      name: "asc",
-    },
-  });
+export default async function StudentsPage() {
+  const students =
+    await prisma.student.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
 
   return (
     <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
-          Subjects
+          Students
         </h1>
 
         <p className="mt-1 text-slate-500">
-          Subject management
+          Manage student records
         </p>
       </div>
 
@@ -40,40 +36,59 @@ export default async function SubjectsPage() {
           <thead className="border-b border-slate-200 dark:border-slate-800">
             <tr>
               <th className="px-6 py-4 text-left">
-                Subject
+                Admission No
               </th>
 
               <th className="px-6 py-4 text-left">
-                Code
+                Student
               </th>
 
               <th className="px-6 py-4 text-left">
-                Teachers
+                Gender
+              </th>
+
+              <th className="px-6 py-4 text-left">
+                Email
               </th>
             </tr>
           </thead>
 
           <tbody>
-            {subjects.map(
+            {students.map(
               (
-                subject: SubjectItem
+                student: StudentItem
               ) => (
                 <tr
-                  key={subject.id}
-                  className="border-b border-slate-100 dark:border-slate-800"
+                  key={student.id}
+                  className="border-b border-slate-100 transition hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-900"
                 >
-                  <td className="px-6 py-4 font-medium">
-                    {subject.name}
+                  <td className="px-6 py-4">
+                    {
+                      student.admissionNumber
+                    }
                   </td>
 
                   <td className="px-6 py-4">
-                    {subject.code}
+                    <Link
+                      href={`/dashboard/students/${student.id}`}
+                      className="font-medium text-blue-600 hover:underline"
+                    >
+                      {
+                        student.firstName
+                      }{" "}
+                      {
+                        student.lastName
+                      }
+                    </Link>
                   </td>
 
                   <td className="px-6 py-4">
-                    {subject.teacher
-                      ? `${subject.teacher.firstName} ${subject.teacher.lastName}`
-                      : "No teacher assigned"}
+                    {student.gender}
+                  </td>
+
+                  <td className="px-6 py-4">
+                    {student.email ||
+                      "-"}
                   </td>
                 </tr>
               )
@@ -81,10 +96,10 @@ export default async function SubjectsPage() {
           </tbody>
         </table>
 
-        {subjects.length ===
+        {students.length ===
           0 && (
           <div className="p-10 text-center text-slate-500">
-            No subjects found
+            No students found
           </div>
         )}
       </div>
