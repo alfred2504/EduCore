@@ -1,21 +1,26 @@
-import Link from "next/link";
-
 import { prisma } from "@/lib/prisma";
 
-interface StudentItem {
+interface TeacherItem {
   id: string;
-  admissionNumber: string;
   firstName: string;
   lastName: string;
-  gender: string;
-  email: string | null;
 }
 
-export default async function StudentsPage() {
-  const students =
-    await prisma.student.findMany({
+interface SubjectItem {
+  id: string;
+  name: string;
+  code: string;
+  teachers: TeacherItem[];
+}
+
+export default async function SubjectsPage() {
+  const subjects =
+    await prisma.subject.findMany({
+      include: {
+        teachers: true,
+      },
       orderBy: {
-        createdAt: "desc",
+        name: "asc",
       },
     });
 
@@ -24,77 +29,64 @@ export default async function StudentsPage() {
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
-          Students
+          Subjects
         </h1>
 
         <p className="mt-1 text-slate-500">
-          Manage student records
+          Subject management
         </p>
       </div>
 
-      {/* Students Table */}
+      {/* Subjects Table */}
       <div className="overflow-hidden rounded-2xl bg-white shadow-sm dark:bg-[#111827]">
         <table className="w-full">
           <thead className="border-b border-slate-200 dark:border-slate-800">
             <tr>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-300">
-                Admission No
+              <th className="px-6 py-4 text-left">
+                Subject
               </th>
 
-              <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-300">
-                Student
+              <th className="px-6 py-4 text-left">
+                Code
               </th>
 
-              <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-300">
-                Gender
-              </th>
-
-              <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-300">
-                Email
+              <th className="px-6 py-4 text-left">
+                Teachers
               </th>
             </tr>
           </thead>
 
           <tbody>
-            {students.map(
+            {subjects.map(
               (
-                student: StudentItem
+                subject: SubjectItem
               ) => (
                 <tr
-                  key={student.id}
-                  className="border-b border-slate-100 transition hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-900"
+                  key={subject.id}
+                  className="border-b border-slate-100 dark:border-slate-800"
                 >
-                  {/* Admission Number */}
-                  <td className="px-6 py-4 text-slate-700 dark:text-slate-300">
-                    {
-                      student.admissionNumber
-                    }
+                  <td className="px-6 py-4 font-medium">
+                    {subject.name}
                   </td>
 
-                  {/* Student Name */}
                   <td className="px-6 py-4">
-                    <Link
-                      href={`/dashboard/students/${student.id}`}
-                      className="font-medium text-blue-600 hover:underline"
-                    >
-                      {
-                        student.firstName
-                      }{" "}
-                      {
-                        student.lastName
-                      }
-                    </Link>
+                    {subject.code}
                   </td>
 
-                  {/* Gender */}
-                  <td className="px-6 py-4 text-slate-700 dark:text-slate-300">
-                    {student.gender}
-                  </td>
-
-                  {/* Email */}
-                  <td className="px-6 py-4 text-slate-700 dark:text-slate-300">
-                    {student.email ||
-                      "-"}
+                  <td className="px-6 py-4">
+                    {subject.teachers
+                      .length > 0
+                      ? subject.teachers
+                          .map(
+                            (
+                              teacher
+                            ) =>
+                              `${teacher.firstName} ${teacher.lastName}`
+                          )
+                          .join(
+                            ", "
+                          )
+                      : "No teachers assigned"}
                   </td>
                 </tr>
               )
@@ -102,11 +94,10 @@ export default async function StudentsPage() {
           </tbody>
         </table>
 
-        {/* Empty State */}
-        {students.length ===
+        {subjects.length ===
           0 && (
           <div className="p-10 text-center text-slate-500">
-            No students found
+            No subjects found
           </div>
         )}
       </div>
