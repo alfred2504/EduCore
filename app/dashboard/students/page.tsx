@@ -10,23 +10,21 @@ interface SubjectItem {
   id: string;
   name: string;
   code: string;
-  teachers: TeacherItem[];
+  teacher: TeacherItem | null;
 }
 
 export default async function SubjectsPage() {
-  const subjects =
-    await prisma.subject.findMany({
-      include: {
-        teachers: true,
-      },
-      orderBy: {
-        name: "asc",
-      },
-    });
+  const subjects = await prisma.subject.findMany({
+    include: {
+      teacher: true,
+    },
+    orderBy: {
+      name: "asc",
+    },
+  });
 
   return (
     <div className="space-y-8">
-      {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
           Subjects
@@ -37,7 +35,6 @@ export default async function SubjectsPage() {
         </p>
       </div>
 
-      {/* Subjects Table */}
       <div className="overflow-hidden rounded-2xl bg-white shadow-sm dark:bg-[#111827]">
         <table className="w-full">
           <thead className="border-b border-slate-200 dark:border-slate-800">
@@ -74,19 +71,9 @@ export default async function SubjectsPage() {
                   </td>
 
                   <td className="px-6 py-4">
-                    {subject.teachers
-                      .length > 0
-                      ? subject.teachers
-                          .map(
-                            (
-                              teacher
-                            ) =>
-                              `${teacher.firstName} ${teacher.lastName}`
-                          )
-                          .join(
-                            ", "
-                          )
-                      : "No teachers assigned"}
+                    {subject.teacher
+                      ? `${subject.teacher.firstName} ${subject.teacher.lastName}`
+                      : "No teacher assigned"}
                   </td>
                 </tr>
               )
