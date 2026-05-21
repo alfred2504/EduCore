@@ -2,14 +2,13 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/get-session";
 import CreateTeacherButton from "./create-teacher-button";
-import type { Prisma } from "@prisma/client";
 
 export default async function TeachersPage() {
-  const teachers: Prisma.Teacher[] = await prisma.teacher.findMany({
+  const teachers = await prisma.teacher.findMany({
     orderBy: { createdAt: "desc" },
   });
 
-  const roleOnlyUsers: Prisma.User[] = await prisma.user.findMany({
+  const roleOnlyUsers = await prisma.user.findMany({
     where: {
       role: "TEACHER",
       teacher: { is: null },
@@ -103,7 +102,10 @@ export default async function TeachersPage() {
 
             {!anyRows && (
               <tr>
-                <td colSpan={4} className="px-6 py-12 text-center text-slate-500">
+                <td
+                  colSpan={4}
+                  className="px-6 py-12 text-center text-slate-500"
+                >
                   No teachers found
                 </td>
               </tr>
