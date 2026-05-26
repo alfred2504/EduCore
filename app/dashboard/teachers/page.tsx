@@ -1,117 +1,112 @@
 import Link from "next/link";
+
 import { prisma } from "@/lib/prisma";
-import { getSession } from "@/lib/get-session";
-import CreateTeacherButton from "./create-teacher-button";
+
+interface TeacherItem {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string | null;
+  qualification: string | null;
+  createdAt: Date;
+}
 
 export default async function TeachersPage() {
-  const teachers = await prisma.teacher.findMany({
-    orderBy: { createdAt: "desc" },
-  });
-
-  const roleOnlyUsers = await prisma.user.findMany({
-    where: {
-      role: "TEACHER",
-      teacher: { is: null },
-    },
-    orderBy: { createdAt: "desc" },
-  });
-
-  const session = await getSession();
-  const role = (session?.user as any)?.role as string | undefined;
-  const isAdmin = role === "SYSTEM_ADMIN" || role === "SCHOOL_ADMIN";
-
-  const anyRows = teachers.length > 0 || roleOnlyUsers.length > 0;
+  const teachers: TeacherItem[] =
+    await prisma.teacher.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Teachers</h1>
-          <p className="mt-1 text-slate-500">Teacher management system</p>
-        </div>
+      {/* Header */}
+      <div>
+        <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
+          Teachers
+        </h1>
 
-        <Link
-          href="/dashboard/teachers/new"
-          className="rounded-xl bg-blue-600 px-4 py-2 text-white"
-        >
-          Add Teacher
-        </Link>
+        <p className="mt-1 text-slate-500">
+          Manage teacher records
+        </p>
       </div>
 
-      <div className="overflow-hidden rounded-2xl border bg-white shadow-sm dark:bg-[#111827]">
+      {/* Stats */}
+      <div className="grid gap-6 md:grid-cols-3">
+        <div className="rounded-2xl bg-white p-6 shadow-sm dark:bg-[#111827]">
+          <p className="text-sm text-slate-500">
+            Total Teachers
+          </p>
+
+          <h2 className="mt-2 text-4xl font-bold">
+            {teachers.length}
+          </h2>
+        </div>
+      </div>
+
+      {/* Teachers Table */}
+      <div className="overflow-hidden rounded-2xl bg-white shadow-sm dark:bg-[#111827]">
         <table className="w-full">
-          <thead className="border-b bg-slate-50 dark:bg-[#1f2937]">
+          <thead className="border-b border-slate-200 dark:border-slate-800">
             <tr>
-              <th className="px-6 py-4 text-left">Name</th>
-              <th className="px-6 py-4 text-left">Email</th>
-              <th className="px-6 py-4 text-left">Subject</th>
-              <th className="px-6 py-4 text-left">Actions</th>
+              <th className="px-6 py-4 text-left">
+                Name
+              </th>
+
+              <th className="px-6 py-4 text-left">
+                Email
+              </th>
+
+              <th className="px-6 py-4 text-left">
+                Qualification
+              </th>
+
+              <th className="px-6 py-4 text-left">
+                Actions
+              </th>
             </tr>
           </thead>
 
           <tbody>
-            {teachers.map((teacher) => (
-              <tr key={teacher.id} className="border-b">
-                <td className="px-6 py-4">
-                  {teacher.firstName} {teacher.lastName}
-                </td>
-                <td className="px-6 py-4">{teacher.email}</td>
-                <td className="px-6 py-4">{teacher.qualification ?? "-"}</td>
-                <td className="px-6 py-4">
-                  <div className="flex gap-3">
+            {teachers.map(
+              (teacher: TeacherItem) => (
+                <tr
+                  key={teacher.id}
+                  className="border-b border-slate-100 dark:border-slate-800"
+                >
+                  <td className="px-6 py-4 font-medium">
+                    {teacher.firstName}{" "}
+                    {teacher.lastName}
+                  </td>
+
+                  <td className="px-6 py-4">
+                    {teacher.email || "-"}
+                  </td>
+
+                  <td className="px-6 py-4">
+                    {teacher.qualification || "-"}
+                  </td>
+
+                  <td className="px-6 py-4">
                     <Link
                       href={`/dashboard/teachers/${teacher.id}`}
-                      className="text-blue-600"
+                      className="text-blue-600 hover:underline"
                     >
                       View
                     </Link>
-                    <Link
-                      href={`/dashboard/teachers/edit/${teacher.id}`}
-                      className="text-yellow-600"
-                    >
-                      Edit
-                    </Link>
-                  </div>
-                </td>
-              </tr>
-            ))}
-
-            {roleOnlyUsers.map((u) => (
-              <tr key={u.id} className="border-b">
-                <td className="px-6 py-4">
-                  {u.name}{" "}
-                  <span className="text-sm text-slate-400">
-                    (user only)
-                  </span>
-                </td>
-                <td className="px-6 py-4">{u.email}</td>
-                <td className="px-6 py-4">-</td>
-                <td className="px-6 py-4">
-                  <div className="flex gap-3 items-center">
-                    {isAdmin ? (
-                      <CreateTeacherButton userId={u.id} />
-                    ) : (
-                      <span className="text-sm text-slate-400">
-                        Admin only
-                      </span>
-                    )}
-                  </div>
-                </td>
-              </tr>
-            ))}
-
-            {!anyRows && (
-              <tr>
-                <td
-                  colSpan={4}
-                  className="px-6 py-12 text-center text-slate-500"
-                >
-                  No teachers found
-                </td>
-              </tr>
+                  </td>
+                </tr>
+              )
             )}
           </tbody>
         </table>
+
+        {teachers.length === 0 && (
+          <div className="p-10 text-center text-slate-500">
+            No teachers found
+          </div>
+        )}
       </div>
     </div>
   );
