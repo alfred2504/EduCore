@@ -3,18 +3,24 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 
 interface PageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export default async function StudentDetailsPage({
   params,
 }: PageProps) {
+  const { id } = await params;
+
+  if (!id) {
+    notFound();
+  }
+
   const student =
     await prisma.student.findUnique({
       where: {
-        id: params.id,
+        id,
       },
     });
 

@@ -1,59 +1,28 @@
-import { prisma } from "@/lib/prisma";
+"use client";
 
-export async function AnalyticsCards() {
-  const totalStudents =
-    await prisma.student.count();
+type Props = {
+  totalStudents: number;
+  activeStudents: number;
+  inactiveStudents: number;
+  totalTeachers: number;
+  activeTeachers: number;
+  inactiveTeachers: number;
+  totalAdmins: number;
+  activeAdmins: number;
+  inactiveAdmins: number;
+};
 
-  const activeStudents =
-    await prisma.student.count({
-      where: {
-        user: {
-          status: "ACTIVE",
-        },
-      },
-    });
-
-  const inactiveStudents =
-    totalStudents - activeStudents;
-
-  const totalTeachers =
-    await prisma.teacher.count();
-
-  const activeTeachers =
-    await prisma.teacher.count({
-      where: {
-        user: {
-          status: "ACTIVE",
-        },
-      },
-    });
-
-  const inactiveTeachers =
-    totalTeachers - activeTeachers;
-
-  // Admin count (users with role SYSTEM_ADMIN or SCHOOL_ADMIN)
-  const totalAdmins =
-    await prisma.user.count({
-      where: {
-        role: {
-          in: ["SYSTEM_ADMIN", "SCHOOL_ADMIN"],
-        },
-      },
-    });
-
-  const activeAdmins =
-    await prisma.user.count({
-      where: {
-        role: {
-          in: ["SYSTEM_ADMIN", "SCHOOL_ADMIN"],
-        },
-        status: "ACTIVE",
-      },
-    });
-
-  const inactiveAdmins =
-    totalAdmins - activeAdmins;
-
+export function AnalyticsCards({
+  totalStudents,
+  activeStudents,
+  inactiveStudents,
+  totalTeachers,
+  activeTeachers,
+  inactiveTeachers,
+  totalAdmins,
+  activeAdmins,
+  inactiveAdmins,
+}: Props) {
   return (
     <div className="grid gap-6 md:grid-cols-3">
       {/* Students Card */}

@@ -2,6 +2,7 @@ import { getServerSession } from "next-auth";
 
 import { authOptions } from "@/lib/auth";
 import { AnalyticsCards } from "@/components/dashboard/analytics-cards";
+import { prisma } from "@/lib/prisma";
 import { WelcomeBanner } from "@/components/dashboard/welcome-banner";
 import { PerformanceChart } from "@/components/dashboard/performance-chart";
 
@@ -11,6 +12,48 @@ export default async function DashboardPage() {
 
   const userName =
     session?.user?.name ?? "User";
+  const totalStudents = await prisma.student.count();
+
+  const activeStudents = await prisma.student.count({
+    where: {
+      user: {
+        status: "ACTIVE",
+      },
+    },
+  });
+
+  const inactiveStudents = totalStudents - activeStudents;
+
+  const totalTeachers = await prisma.teacher.count();
+
+  const activeTeachers = await prisma.teacher.count({
+    where: {
+      user: {
+        status: "ACTIVE",
+      },
+    },
+  });
+
+  const inactiveTeachers = totalTeachers - activeTeachers;
+
+  const totalAdmins = await prisma.user.count({
+    where: {
+      role: {
+        in: ["SYSTEM_ADMIN", "SCHOOL_ADMIN"],
+      },
+    },
+  });
+
+  const activeAdmins = await prisma.user.count({
+    where: {
+      role: {
+        in: ["SYSTEM_ADMIN", "SCHOOL_ADMIN"],
+      },
+      status: "ACTIVE",
+    },
+  });
+
+  const inactiveAdmins = totalAdmins - activeAdmins;
 
   return (
     <div className="space-y-8">
@@ -18,7 +61,17 @@ export default async function DashboardPage() {
       <WelcomeBanner name={userName} />
 
       {/* Analytics */}
-      <AnalyticsCards />
+      <AnalyticsCards
+        totalStudents={totalStudents}
+        activeStudents={activeStudents}
+        inactiveStudents={inactiveStudents}
+        totalTeachers={totalTeachers}
+        activeTeachers={activeTeachers}
+        inactiveTeachers={inactiveTeachers}
+        totalAdmins={totalAdmins}
+        activeAdmins={activeAdmins}
+        inactiveAdmins={inactiveAdmins}
+      />
 
       {/* Charts */}
       <div className="grid gap-6 xl:grid-cols-2">

@@ -4,7 +4,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 enum Role {
@@ -67,6 +66,8 @@ model Class {
 
   subjects       Subject[]
 
+  exams          Exam[]
+
   attendances    Attendance[]
 
   createdAt      DateTime @default(now())
@@ -104,6 +105,10 @@ model Student {
   class           Class? @relation(fields: [classId], references: [id])
 
   grades          Grade[]
+
+  examResults     ExamResult[]
+
+  reportCards     ReportCard[]
 
   invoices        Invoice[]
 
@@ -154,8 +159,89 @@ model Subject {
 
   grades      Grade[]
 
+  exams       Exam[]
+
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model Term {
+  id        String   @id @default(cuid())
+
+  name      String
+  startDate DateTime
+  endDate   DateTime
+
+  exams     Exam[]
+  reportCards ReportCard[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Exam {
+  id          String   @id @default(cuid())
+
+  title       String
+  description String?
+
+  classId     String
+  subjectId   String
+  termId      String
+
+  totalMarks  Float    @default(100)
+
+  published   Boolean  @default(false)
+
+  examDate    DateTime
+
+  class       Class    @relation(fields: [classId], references: [id])
+  subject     Subject  @relation(fields: [subjectId], references: [id])
+  term        Term     @relation(fields: [termId], references: [id])
+
+  results     ExamResult[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model ExamResult {
+  id        String   @id @default(cuid())
+
+  examId    String
+  studentId String
+
+  marks     Float
+  grade     String
+  remarks   String?
+
+  exam      Exam     @relation(fields: [examId], references: [id])
+  student   Student  @relation(fields: [studentId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([examId, studentId])
+}
+
+model ReportCard {
+  id        String   @id @default(cuid())
+
+  studentId String
+  termId    String
+
+  gpa       Float
+  position  Int?
+
+  remarks   String?
+
+  student   Student  @relation(fields: [studentId], references: [id])
+  term      Term     @relation(fields: [termId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([studentId, termId])
 }
 
 model Grade {
