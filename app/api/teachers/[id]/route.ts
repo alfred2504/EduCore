@@ -1,5 +1,3 @@
-import { Prisma } from "@prisma/client";
-
 import { prisma } from "@/lib/prisma";
 
 type RouteContext = {
@@ -7,6 +5,19 @@ type RouteContext = {
     id: string;
   }>;
 };
+
+function getPrismaErrorCode(error: unknown) {
+  if (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    typeof error.code === "string"
+  ) {
+    return error.code;
+  }
+
+  return null;
+}
 
 export async function GET(
   _req: Request,
@@ -79,10 +90,9 @@ export async function PATCH(
 
     return Response.json(teacher);
   } catch (error) {
-    if (
-      error instanceof Prisma.PrismaClientKnownRequestError &&
-      error.code === "P2025"
-    ) {
+    const errorCode = getPrismaErrorCode(error);
+
+    if (errorCode === "P2025") {
       return Response.json(
         {
           error: "Teacher not found",
@@ -93,10 +103,7 @@ export async function PATCH(
       );
     }
 
-    if (
-      error instanceof Prisma.PrismaClientKnownRequestError &&
-      error.code === "P2002"
-    ) {
+    if (errorCode === "P2002") {
       return Response.json(
         {
           error: "Email already exists",
