@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -72,99 +73,149 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-100 dark:bg-[#0B1220]">
-      <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-xl dark:bg-[#111827]">
-        <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
-          Create Account
-        </h1>
+    <div className="relative min-h-screen overflow-hidden bg-slate-100 px-4 py-10 dark:bg-[#0B1220]">
+      <div className="pointer-events-none absolute left-[-4rem] top-4 h-64 w-64 rounded-full bg-emerald-300/20 blur-3xl" />
+      <div className="pointer-events-none absolute bottom-0 right-[-5rem] h-80 w-80 rounded-full bg-blue-300/20 blur-3xl" />
 
-        <p className="mt-2 text-slate-500">
-          Register as a teacher or student. Admin approval is required before
-          login.
-        </p>
-
-        {errorMessage ? (
-          <p className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900/40 dark:bg-red-950/30 dark:text-red-300">
-            {errorMessage}
+      <div className="mx-auto grid w-full max-w-5xl overflow-hidden rounded-3xl border border-slate-200/70 bg-white/80 shadow-2xl backdrop-blur dark:border-slate-800 dark:bg-slate-950/80 lg:grid-cols-[1.1fr_0.9fr]">
+        <section className="hidden bg-gradient-to-br from-emerald-600 to-cyan-700 p-10 text-white lg:block">
+          <p className="inline-flex rounded-full border border-white/30 px-3 py-1 text-xs uppercase tracking-[0.2em] text-white/80">
+            EduCore Onboarding
           </p>
-        ) : null}
 
-        {successMessage ? (
-          <p className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-950/30 dark:text-emerald-300">
-            {successMessage}
+          <h1 className="mt-6 text-4xl font-bold leading-tight">
+            Create your
+            <br />
+            academic account
+          </h1>
+
+          <p className="mt-4 max-w-md text-sm text-white/90">
+            Register as a student or teacher. New accounts are reviewed by administrators before full system access.
           </p>
-        ) : null}
 
-        <form onSubmit={handleRegister} className="mt-6 space-y-4">
-          <input
-            type="text"
-            placeholder="Full Name"
-            className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-            value={formData.name}
-            onChange={(e) =>
-              setFormData({
-                ...formData,
-                name: e.target.value,
-              })
-            }
-          />
+          <div className="mt-10 space-y-3 text-sm">
+            <div className="rounded-2xl border border-white/20 bg-white/10 px-4 py-3">Approval workflow for secure onboarding</div>
+            <div className="rounded-2xl border border-white/20 bg-white/10 px-4 py-3">Student profile continuation after signup</div>
+            <div className="rounded-2xl border border-white/20 bg-white/10 px-4 py-3">Role-based access and permissions</div>
+          </div>
+        </section>
 
-          <input
-            type="email"
-            placeholder="Email"
-            className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-            value={formData.email}
-            onChange={(e) =>
-              setFormData({
-                ...formData,
-                email: e.target.value,
-              })
-            }
-          />
+        <section className="p-6 sm:p-10">
+          <h2 className="text-3xl font-bold text-slate-900 dark:text-white">
+            Create Account
+          </h2>
 
-          <input
-            type="password"
-            placeholder="Password"
-            autoComplete="new-password"
-            className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-            value={formData.password}
-            onChange={(e) =>
-              setFormData({
-                ...formData,
-                password: e.target.value,
-              })
-            }
-          />
+          <p className="mt-2 text-slate-500">
+            Start your EduCore journey.
+          </p>
 
-          <select
-            value={formData.role}
-            onChange={(e) =>
-              setFormData({
-                ...formData,
-                role: e.target.value,
-              })
-            }
-            className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-          >
-            <option value="STUDENT">Student</option>
-            <option value="TEACHER">Teacher</option>
-          </select>
+          {errorMessage ? (
+            <p className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900/40 dark:bg-red-950/30 dark:text-red-300">
+              {errorMessage}
+            </p>
+          ) : null}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full rounded-xl bg-blue-600 py-3 font-semibold text-white transition hover:bg-blue-700"
-          >
-            {loading ? "Creating..." : "Create Account"}
-          </button>
-        </form>
+          {successMessage ? (
+            <p className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-950/30 dark:text-emerald-300">
+              {successMessage}
+            </p>
+          ) : null}
 
-        <p className="mt-6 text-center text-sm text-slate-500">
-          Already have an account?{" "}
-          <a href="/login" className="font-medium text-blue-600">
-            Login
-          </a>
-        </p>
+          <form onSubmit={handleRegister} className="mt-6 space-y-4">
+            <div className="space-y-2">
+              <label htmlFor="name" className="text-sm font-medium text-slate-700 dark:text-slate-200">
+                Full Name
+              </label>
+              <input
+                id="name"
+                type="text"
+                placeholder="Jane Doe"
+                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 outline-none transition focus:border-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                value={formData.name}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    name: e.target.value,
+                  })
+                }
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label htmlFor="email" className="text-sm font-medium text-slate-700 dark:text-slate-200">
+                Email
+              </label>
+              <input
+                id="email"
+                type="email"
+                placeholder="you@school.edu"
+                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 outline-none transition focus:border-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                value={formData.email}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    email: e.target.value,
+                  })
+                }
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label htmlFor="password" className="text-sm font-medium text-slate-700 dark:text-slate-200">
+                Password
+              </label>
+              <input
+                id="password"
+                type="password"
+                placeholder="Create a secure password"
+                autoComplete="new-password"
+                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 outline-none transition focus:border-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                value={formData.password}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    password: e.target.value,
+                  })
+                }
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label htmlFor="role" className="text-sm font-medium text-slate-700 dark:text-slate-200">
+                Register As
+              </label>
+              <select
+                id="role"
+                value={formData.role}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    role: e.target.value,
+                  })
+                }
+                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 outline-none transition focus:border-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+              >
+                <option value="STUDENT">Student</option>
+                <option value="TEACHER">Teacher</option>
+              </select>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full rounded-xl bg-blue-600 py-3 font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-70"
+            >
+              {loading ? "Creating..." : "Create Account"}
+            </button>
+          </form>
+
+          <p className="mt-6 text-center text-sm text-slate-500">
+            Already have an account?{" "}
+            <Link href="/login" className="font-semibold text-blue-600 hover:text-blue-700">
+              Login
+            </Link>
+          </p>
+        </section>
       </div>
     </div>
   );

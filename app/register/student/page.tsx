@@ -21,16 +21,23 @@ export default function StudentRegistrationPage({
   const lastName = nameParts.slice(1).join(" ") || "";
 
   return (
-    <div className="min-h-screen bg-slate-100 px-4 py-12 dark:bg-[#0B1220]">
-      <div className="mx-auto w-full max-w-4xl space-y-6 rounded-3xl bg-white p-6 shadow-xl dark:bg-[#111827] md:p-8">
-        <div className="flex items-start justify-between gap-4">
+    <div className="relative min-h-screen overflow-hidden bg-slate-100 px-4 py-12 dark:bg-[#0B1220]">
+      <div className="pointer-events-none absolute -left-16 top-6 h-56 w-56 rounded-full bg-emerald-300/20 blur-3xl" />
+      <div className="pointer-events-none absolute -right-20 bottom-6 h-64 w-64 rounded-full bg-cyan-300/20 blur-3xl" />
+
+      <div className="mx-auto w-full max-w-4xl space-y-6 rounded-3xl border border-slate-200/70 bg-white/90 p-6 shadow-2xl backdrop-blur dark:border-slate-800 dark:bg-slate-950/80 md:p-8">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
-              Student Registration
+            <p className="inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-medium uppercase tracking-[0.16em] text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-950/30 dark:text-emerald-300">
+              Final Step
+            </p>
+
+            <h1 className="mt-3 text-3xl font-bold text-slate-900 dark:text-white">
+              Complete Student Profile
             </h1>
 
             <p className="mt-2 text-slate-500">
-              Complete your student profile.
+              Add academic details to activate student onboarding.
             </p>
           </div>
 
@@ -42,7 +49,11 @@ export default function StudentRegistrationPage({
           </Link>
         </div>
 
-        <CreateStudentForm defaultEmail={email} defaultFirstName={firstName} defaultLastName={lastName} />
+        <CreateStudentForm
+          defaultEmail={email}
+          defaultFirstName={firstName}
+          defaultLastName={lastName}
+        />
       </div>
     </div>
   );

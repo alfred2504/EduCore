@@ -4,12 +4,12 @@ import { authOptions } from '@/lib/auth';
 
 export async function POST(req: Request) {
   try {
-    const session = (await getServerSession(authOptions as any)) as any;
+    const session = await getServerSession(authOptions);
     if (!session || !session.user) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
     }
 
-    const role = (session.user as any).role as string | undefined;
+    const role = session.user.role;
     if (role !== 'SYSTEM_ADMIN' && role !== 'SCHOOL_ADMIN') {
       return new Response(JSON.stringify({ error: 'Forbidden' }), { status: 403 });
     }
@@ -42,6 +42,7 @@ export async function POST(req: Request) {
     return new Response(JSON.stringify({ teacher }), { status: 201 });
   } catch (err) {
     console.error('/api/admin/promote-teacher error', err);
-    return new Response(JSON.stringify({ error: (err as any).message ?? 'Error' }), { status: 500 });
+    const message = err instanceof Error ? err.message : 'Error';
+    return new Response(JSON.stringify({ error: message }), { status: 500 });
   }
 }

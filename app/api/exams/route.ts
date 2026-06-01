@@ -36,6 +36,7 @@ export async function POST(req: Request) {
     const exam = await prisma.exam.create({
       data: {
         title: body.title,
+        type: body.type,
         description: body.description,
         classId: body.classId,
         subjectId: body.subjectId,

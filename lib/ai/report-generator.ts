@@ -1,7 +1,7 @@
 import { openai } from "@/lib/openai";
 
 export async function generateReport(
-  data: any
+  data: unknown
 ) {
   const completion =
     await openai.chat.completions.create({

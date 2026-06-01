@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -82,20 +82,24 @@ interface SidebarProps {
 
 export function Sidebar({ role }: SidebarProps) {
   const pathname = usePathname();
-  const [classesOpen, setClassesOpen] = useState(false);
-  const [studentsOpen, setStudentsOpen] = useState(false);
+  const [classesOpen, setClassesOpen] = useState(() =>
+    pathname.startsWith("/dashboard/classes") ||
+    pathname.startsWith("/dashboard/classes/register")
+  );
+  const [studentsOpen, setStudentsOpen] = useState(() =>
+    pathname.startsWith("/dashboard/students") ||
+    pathname.startsWith("/register/student")
+  );
 
-  useEffect(() => {
-    setClassesOpen(
-      pathname.startsWith("/dashboard/classes") ||
-        pathname.startsWith("/dashboard/classes/register")
-    );
+  const showClassesMenu =
+    classesOpen ||
+    pathname.startsWith("/dashboard/classes") ||
+    pathname.startsWith("/dashboard/classes/register");
 
-    setStudentsOpen(
-      pathname.startsWith("/dashboard/students") ||
-        pathname.startsWith("/register/student")
-    );
-  }, [pathname]);
+  const showStudentsMenu =
+    studentsOpen ||
+    pathname.startsWith("/dashboard/students") ||
+    pathname.startsWith("/register/student");
 
   const filteredMenu = menuItems.filter((item) => item.roles.includes(role));
 
@@ -139,12 +143,12 @@ export function Sidebar({ role }: SidebarProps) {
                     size={16}
                     className={cn(
                       "transition-transform duration-200",
-                      classesOpen && "rotate-180"
-                    )}
-                  />
-                </button>
+                    showClassesMenu && "rotate-180"
+                  )}
+                />
+              </button>
 
-                {classesOpen && (
+                {showClassesMenu && (
                   <div className="space-y-1 pl-4">
                     <Link
                       href="/dashboard/classes/register"
@@ -205,12 +209,12 @@ export function Sidebar({ role }: SidebarProps) {
                     size={16}
                     className={cn(
                       "transition-transform duration-200",
-                      studentsOpen && "rotate-180"
-                    )}
-                  />
-                </button>
+                    showStudentsMenu && "rotate-180"
+                  )}
+                />
+              </button>
 
-                {studentsOpen && (
+                {showStudentsMenu && (
                   <div className="space-y-1 pl-4">
                     <Link
                       href="/register/student"

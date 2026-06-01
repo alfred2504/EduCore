@@ -26,7 +26,7 @@ export async function POST(
       updatedStudent
     );
 
-  } catch (error) {
+  } catch {
     return Response.json(
       {
         error:

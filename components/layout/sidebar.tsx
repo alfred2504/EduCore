@@ -11,7 +11,6 @@ import {
   GraduationCap,
   ClipboardList,
   BookOpen,
-  Package,
   BrainCircuit,
   Shield,
   Settings,

@@ -1,29 +1,14 @@
 import Link from "next/link";
 import {
-  BarChart3,
   BookOpen,
   CheckCircle2,
   ChevronRight,
   GraduationCap,
-  LayoutDashboard,
-  Layers3,
   Menu,
   Search,
   Star,
-  Users,
   Zap,
 } from "lucide-react";
-
-const stats = [
-  {
-    value: "04 Dashboards",
-    icon: LayoutDashboard,
-  },
-  {
-    value: "100+ Screens",
-    icon: Layers3,
-  },
-];
 
 const featurePills = [
   "Student Records",

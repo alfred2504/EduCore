@@ -46,15 +46,13 @@ export async function POST(req: Request) {
       },
     });
 
-    const userStatus = (user as any).status ?? "PENDING";
-
     return NextResponse.json(
       {
         id: user.id,
         name: user.name,
         email: user.email,
         role: user.role,
-        status: userStatus,
+        status: user.status ?? "PENDING",
       },
       { status: 201 }
     );

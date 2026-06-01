@@ -37,7 +37,8 @@ export async function POST(req: Request) {
         termId: body.termId,
         gpa: body.gpa,
         position: body.position,
-        remarks: body.remarks,
+        teacherComment: body.teacherComment ?? body.remarks,
+        aiComment: body.aiComment,
       },
     });
 

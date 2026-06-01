@@ -53,7 +53,7 @@ export async function POST(
       newClass
     );
 
-  } catch (error: any) {
+  } catch (error: unknown) {
 
     // Zod validation errors
     if (
@@ -74,7 +74,10 @@ export async function POST(
 
     // Prisma foreign key errors
     if (
-      error?.code === "P2003"
+      typeof error === "object" &&
+      error !== null &&
+      "code" in error &&
+      error.code === "P2003"
     ) {
       return Response.json(
         {

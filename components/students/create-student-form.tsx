@@ -83,7 +83,7 @@ export function CreateStudentForm({
 
       router.refresh();
 
-    } catch (error) {
+    } catch {
       toast.error(
         "Something went wrong"
       );

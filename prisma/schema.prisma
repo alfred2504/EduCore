@@ -106,7 +106,7 @@ model Student {
 
   grades          Grade[]
 
-  examResults     ExamResult[]
+  results         ExamResult[]
 
   reportCards     ReportCard[]
 
@@ -172,7 +172,7 @@ model Term {
   startDate DateTime
   endDate   DateTime
 
-  exams     Exam[]
+  exams       Exam[]
   reportCards ReportCard[]
 
   createdAt DateTime @default(now())
@@ -183,6 +183,7 @@ model Exam {
   id          String   @id @default(cuid())
 
   title       String
+  type        String
   description String?
 
   classId     String
@@ -212,7 +213,8 @@ model ExamResult {
   studentId String
 
   marks     Float
-  grade     String
+  grade     String?
+  points    Float?
   remarks   String?
 
   exam      Exam     @relation(fields: [examId], references: [id])
@@ -230,10 +232,13 @@ model ReportCard {
   studentId String
   termId    String
 
-  gpa       Float
+  gpa       Float?
   position  Int?
 
-  remarks   String?
+  teacherComment String?
+  aiComment      String?
+
+  published Boolean  @default(false)
 
   student   Student  @relation(fields: [studentId], references: [id])
   term      Term     @relation(fields: [termId], references: [id])

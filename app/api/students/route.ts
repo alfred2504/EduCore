@@ -49,7 +49,7 @@ export async function GET() {
 
     return Response.json(students);
 
-  } catch (error) {
+  } catch {
     return Response.json(
       {
         error: "Failed to fetch students",

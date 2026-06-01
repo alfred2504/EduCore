@@ -1,4 +1,5 @@
 import NextAuth from "next-auth";
+import type { AuthOptions } from "next-auth";
 import type { Session } from "next-auth";
 import type { User } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
@@ -20,12 +21,7 @@ type CredentialsInput = {
   password?: string;
 };
 
-type SessionUser = {
-  role?: string;
-  status?: string;
-} | null | undefined;
-
-export const authOptions = {
+export const authOptions: AuthOptions = {
   providers: [
     Credentials({
       name: "credentials",
