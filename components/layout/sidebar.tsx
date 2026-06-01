@@ -12,6 +12,7 @@ import {
   ClipboardList,
   BookOpen,
   BrainCircuit,
+  BarChart3,
   Shield,
   Settings,
 } from "lucide-react";
@@ -86,6 +87,17 @@ const menuItems = [
   },
 
   {
+    title: "Exams",
+    href: "/dashboard/exams",
+    icon: ClipboardList,
+    roles: [
+      "SYSTEM_ADMIN",
+      "SCHOOL_ADMIN",
+      "TEACHER",
+    ],
+  },
+
+  {
     title: "Teachers",
     href: "/dashboard/teachers",
     icon: GraduationCap,
@@ -147,6 +159,29 @@ const menuItems = [
   },
 
   {
+    title: "Academic Analytics",
+    href: "/dashboard/analytics/academics",
+    icon: BarChart3,
+    roles: [
+      "SYSTEM_ADMIN",
+      "SCHOOL_ADMIN",
+      "TEACHER",
+    ],
+  },
+
+  {
+    title: "Parent Portal",
+    href: "/dashboard/parent",
+    icon: Users,
+    roles: [
+      "SYSTEM_ADMIN",
+      "SCHOOL_ADMIN",
+      "TEACHER",
+      "STUDENT",
+    ],
+  },
+
+  {
     title: "Settings",
     href: "/dashboard/settings",
     icon: Settings,
@@ -178,6 +213,10 @@ export function Sidebar({
     menuItems.filter((item) =>
       item.roles.includes(role)
     );
+  const isActiveLink = (href: string) =>
+    href === "/dashboard"
+      ? pathname === href
+      : pathname === href || pathname.startsWith(`${href}/`);
 
   return (
     <aside className="hidden w-[260px] border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-[#111827] lg:flex lg:flex-col">
@@ -203,7 +242,7 @@ export function Sidebar({
               href={item.href}
               className={cn(
                 "flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all",
-                pathname === item.href
+                isActiveLink(item.href)
                   ? "bg-blue-600 text-white"
                   : "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
               )}

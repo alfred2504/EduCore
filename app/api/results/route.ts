@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { calculateGrade, gradePoints } from "@/lib/grading";
 
 export async function GET() {
   try {
@@ -30,13 +31,29 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
+    const marks = Number(body.marks);
+    const grade = body.grade ?? calculateGrade(marks);
+    const points = body.points ?? gradePoints(marks);
 
-    const result = await prisma.examResult.create({
-      data: {
+    const result = await prisma.examResult.upsert({
+      where: {
+        examId_studentId: {
+          examId: body.examId,
+          studentId: body.studentId,
+        },
+      },
+      create: {
         examId: body.examId,
         studentId: body.studentId,
-        marks: body.marks,
-        grade: body.grade,
+        marks,
+        grade,
+        points,
+        remarks: body.remarks,
+      },
+      update: {
+        marks,
+        grade,
+        points,
         remarks: body.remarks,
       },
     });

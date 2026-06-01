@@ -31,8 +31,8 @@ export default async function StudentsPage() {
         </p>
       </div>
 
-      <div className="overflow-hidden rounded-2xl bg-white shadow-sm dark:bg-[#111827]">
-        <table className="w-full">
+      <div className="overflow-x-auto rounded-2xl bg-white shadow-sm dark:bg-[#111827]">
+        <table className="min-w-[720px] w-full">
           <thead className="border-b border-slate-200 dark:border-slate-800">
             <tr>
               <th className="px-6 py-4 text-left">

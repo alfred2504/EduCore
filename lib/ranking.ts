@@ -1,11 +1,8 @@
-export interface RankedStudent {
-  studentId: string;
-  studentName: string;
-  gpa: number;
-}
-
 export function rankStudents(
-  students: RankedStudent[]
+  students: {
+    studentId: string;
+    gpa: number;
+  }[]
 ) {
   return students
     .sort((a, b) => b.gpa - a.gpa)

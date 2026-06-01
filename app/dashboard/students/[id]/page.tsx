@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { prisma } from "@/lib/prisma";
@@ -31,9 +32,9 @@ export default async function StudentDetailsPage({
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white sm:text-3xl">
             Student Profile
           </h1>
 
@@ -41,10 +42,17 @@ export default async function StudentDetailsPage({
             Detailed student information
           </p>
         </div>
+
+        <Link
+          href={`/api/transcripts/${student.id}`}
+          className="inline-flex w-full justify-center rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 sm:w-auto"
+        >
+          Download Transcript
+        </Link>
       </div>
 
       {/* Profile Card */}
-      <div className="rounded-2xl bg-white p-8 shadow-sm dark:bg-[#111827]">
+      <div className="rounded-2xl bg-white p-4 shadow-sm dark:bg-[#111827] sm:p-8">
         <div className="flex flex-col gap-8 md:flex-row">
           {/* Avatar */}
           <div className="flex h-32 w-32 items-center justify-center rounded-full bg-blue-600 text-4xl font-bold text-white">
