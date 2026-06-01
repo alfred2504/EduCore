@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { ModeToggle } from "@/components/layout/theme-toggle";
 
 const menuItems = [
   {
@@ -221,14 +222,16 @@ export function Sidebar({
   return (
     <aside className="hidden w-[260px] border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-[#111827] lg:flex lg:flex-col">
       {/* Logo */}
-      <div className="border-b border-slate-200 px-6 py-5 dark:border-slate-800">
-        <h1 className="text-2xl font-bold text-blue-600">
-          EduCore
-        </h1>
+      <div className="border-b border-slate-200 px-6 py-5 dark:border-slate-800 flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-blue-600">EduCore</h1>
 
-        <p className="mt-1 text-xs text-slate-500">
-          Intelligent School OS
-        </p>
+          <p className="mt-1 text-xs text-slate-500">Intelligent School OS</p>
+        </div>
+
+        <div className="hidden sm:block">
+          <ModeToggle />
+        </div>
       </div>
 
       {/* Navigation */}

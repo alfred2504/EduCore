@@ -16,7 +16,7 @@ import {
   X,
 } from "lucide-react";
 
-import { ModeToggle } from "./theme-toggle";
+import { ModeToggle } from "@/components/layout/theme-toggle";
 import { cn } from "@/lib/utils";
 
 const menuItems = [

@@ -49,11 +49,8 @@ export function PerformanceChart() {
         </p>
       </div>
 
-      <div className="h-[300px] min-h-0">
-        <ResponsiveContainer
-          width="100%"
-          height="100%"
-        >
+      <div className="h-[300px] min-h-0 min-w-0">
+        <ResponsiveContainer width="100%" height={300}>
           <LineChart data={data}>
             <XAxis dataKey="month" />
 

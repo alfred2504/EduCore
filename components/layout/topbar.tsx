@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { ModeToggle } from "@/components/layout/theme-toggle";
 
 const menuItems = [
   {
@@ -131,6 +132,8 @@ export function Topbar({ name, role }: TopbarProps) {
             <p className="text-xs text-slate-500">{role}</p>
           </div>
 
+          <ModeToggle />
+
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-600 font-bold text-white sm:h-10 sm:w-10">
             {name.charAt(0)}
           </div>
@@ -173,15 +176,18 @@ export function Topbar({ name, role }: TopbarProps) {
               <h2 className="text-2xl font-bold text-blue-600">EduCore</h2>
               <p className="text-xs text-slate-500 dark:text-slate-400">Mobile menu</p>
             </div>
+            <div className="flex items-center gap-2">
+              <ModeToggle />
 
-            <button
-              type="button"
-              onClick={() => setMenuOpen(false)}
-              className="rounded-xl p-2 hover:bg-slate-100 dark:hover:bg-slate-800"
-              aria-label="Close navigation menu"
-            >
-              <X size={20} className="text-slate-600 dark:text-slate-300" />
-            </button>
+              <button
+                type="button"
+                onClick={() => setMenuOpen(false)}
+                className="rounded-xl p-2 hover:bg-slate-100 dark:hover:bg-slate-800"
+                aria-label="Close navigation menu"
+              >
+                <X size={20} className="text-slate-600 dark:text-slate-300" />
+              </button>
+            </div>
           </div>
 
           <nav className="space-y-1 px-3 py-4">
