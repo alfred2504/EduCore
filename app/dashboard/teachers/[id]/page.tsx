@@ -23,6 +23,13 @@ export default async function TeacherDetailsPage({
       id,
     },
     include: {
+      classes: {
+        select: {
+          id: true,
+          name: true,
+          level: true,
+        },
+      },
       subjects: {
         select: {
           id: true,
@@ -112,6 +119,37 @@ export default async function TeacherDetailsPage({
               <tr>
                 <td className="px-6 py-6 text-slate-500" colSpan={2}>
                   No subjects assigned yet.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="overflow-hidden rounded-2xl bg-white shadow-sm dark:bg-[#111827]">
+        <div className="border-b border-slate-200 px-6 py-4 dark:border-slate-800">
+          <h2 className="text-xl font-semibold">Assigned Classes</h2>
+        </div>
+
+        <table className="w-full">
+          <thead className="border-b border-slate-100 dark:border-slate-800">
+            <tr>
+              <th className="px-6 py-4 text-left">Class</th>
+              <th className="px-6 py-4 text-left">Level</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {teacher.classes.map((classItem) => (
+              <tr key={classItem.id} className="border-b border-slate-100 dark:border-slate-800">
+                <td className="px-6 py-4">{classItem.name}</td>
+                <td className="px-6 py-4">{classItem.level}</td>
+              </tr>
+            ))}
+            {teacher.classes.length === 0 && (
+              <tr>
+                <td className="px-6 py-6 text-slate-500" colSpan={2}>
+                  No classes assigned yet.
                 </td>
               </tr>
             )}

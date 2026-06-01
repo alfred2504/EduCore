@@ -51,6 +51,12 @@ const menuItems = [
     roles: ["SYSTEM_ADMIN", "SCHOOL_ADMIN", "TEACHER"],
   },
   {
+    title: "Report Cards",
+    href: "/dashboard/report-cards",
+    icon: ClipboardList,
+    roles: ["SYSTEM_ADMIN", "SCHOOL_ADMIN", "TEACHER", "STUDENT"],
+  },
+  {
     title: "Academic Analytics",
     href: "/dashboard/analytics/academics",
     icon: BarChart3,

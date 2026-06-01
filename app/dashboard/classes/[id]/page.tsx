@@ -1,5 +1,7 @@
 import { notFound } from "next/navigation";
 
+import { AssignStudentForm } from "@/components/classes/assign-student-form";
+import { AssignTeacherForm } from "@/components/classes/assign-teacher-form";
 import { prisma } from "@/lib/prisma";
 
 interface PageProps {
@@ -23,6 +25,7 @@ export default async function ClassDetailsPage({
     },
     include: {
       academicYear: true,
+        teacher: true,
       students: {
         select: {
           id: true,
@@ -83,6 +86,51 @@ export default async function ClassDetailsPage({
           <p className="text-sm text-slate-500">Capacity</p>
           <h2 className="mt-2 text-4xl font-bold">{classItem.capacity ?? "N/A"}</h2>
         </div>
+      </div>
+
+      <div className="rounded-2xl bg-white p-6 shadow-sm dark:bg-[#111827]">
+        <p className="text-sm text-slate-500">Assigned Teacher</p>
+        <h2 className="mt-2 text-2xl font-semibold text-slate-900 dark:text-white">
+          {classItem.teacher
+            ? `${classItem.teacher.firstName} ${classItem.teacher.lastName}`
+            : "No teacher assigned"}
+        </h2>
+      </div>
+
+      <div className="grid gap-6 xl:grid-cols-2">
+        <AssignStudentForm
+          classId={classItem.id}
+          students={await prisma.student.findMany({
+            where: {
+              OR: [{ classId: null }, { classId: { not: classItem.id } }],
+            },
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              admissionNumber: true,
+            },
+            orderBy: {
+              createdAt: "desc",
+            },
+          })}
+        />
+
+        <AssignTeacherForm
+          classId={classItem.id}
+          currentTeacherId={classItem.teacher?.id ?? null}
+          teachers={await prisma.teacher.findMany({
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              email: true,
+            },
+            orderBy: {
+              createdAt: "desc",
+            },
+          })}
+        />
       </div>
 
       <div className="rounded-2xl bg-white shadow-sm dark:bg-[#111827]">

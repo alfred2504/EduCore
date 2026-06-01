@@ -58,9 +58,13 @@ model Class {
 
   capacity       Int?
 
+  teacherId      String?
+
   academicYearId String
 
   academicYear   AcademicYear @relation(fields: [academicYearId], references: [id])
+
+  teacher        Teacher? @relation(fields: [teacherId], references: [id])
 
   students       Student[]
 
@@ -135,6 +139,8 @@ model Teacher {
   userId       String?  @unique
 
   user         User? @relation(fields: [userId], references: [id])
+
+  classes      Class[]
 
   subjects     Subject[]
 
