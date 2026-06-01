@@ -1,22 +1,14 @@
 import { AIChat } from "@/components/ai/ai-chat";
-import { headers } from "next/headers";
+import { generateAIInsights } from "@/lib/ai/insights";
 
-async function getInsights() {
+type InsightsPageData = {
+  insights?: string | null;
+  error?: string;
+};
+
+async function getInsights(): Promise<InsightsPageData> {
   try {
-    const h = await headers();
-    const host = h.get("x-forwarded-host") ?? h.get("host");
-    const proto = h.get("x-forwarded-proto") ?? "http";
-    const baseUrl = host ? `${proto}://${host}` : process.env.NEXTAUTH_URL ?? "http://localhost:3000";
-
-    const res = await fetch(`${baseUrl}/api/ai/insights`, { cache: "no-store" });
-
-    const json = await res.json().catch(() => ({ error: "invalid JSON response" }));
-
-    if (!res.ok) {
-      return { error: json?.error ?? `status ${res.status}` };
-    }
-
-    return json;
+    return await generateAIInsights();
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : String(err);
 

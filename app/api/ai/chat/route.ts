@@ -1,4 +1,4 @@
-import { openai } from "@/lib/openai";
+import { getOpenAIClient } from "@/lib/openai";
 
 type OpenAIChatCompletionLike = {
   choices?: Array<{
@@ -61,9 +61,14 @@ export async function POST(
     const message = body.message ?? "";
 
     if (!process.env.OPENAI_API_KEY) {
-      console.error("OPENAI_API_KEY not set");
-      return Response.json({ error: "OpenAI API key not configured" }, { status: 500 });
+      return Response.json({
+        reply: buildLocalChatReply(message),
+        fallback: "local",
+        reason: "missing_api_key",
+      });
     }
+
+    const openai = getOpenAIClient();
 
     const modelsToTry = [process.env.OPENAI_MODEL, "gpt-4o-mini", "gpt-4.1-mini"].filter(
       Boolean

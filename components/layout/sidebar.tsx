@@ -138,7 +138,7 @@ const menuItems = [
 
   {
     title: "AI Insights",
-    href: "/dashboard/analytics",
+    href: "/dashboard/ai",
     icon: BrainCircuit,
     roles: [
       "SYSTEM_ADMIN",

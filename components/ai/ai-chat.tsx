@@ -8,28 +8,62 @@ export function AIChat() {
 
   const [reply, setReply] =
     useState("");
+  const [error, setError] =
+    useState("");
 
   async function sendMessage() {
-    const res = await fetch(
-      "/api/ai/chat",
-      {
-        method: "POST",
+    setError("");
+    setReply("");
 
-        headers: {
-          "Content-Type":
-            "application/json",
-        },
+    try {
+      const res = await fetch(
+        "/api/ai/chat",
+        {
+          method: "POST",
 
-        body: JSON.stringify({
-          message,
-        }),
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+
+          body: JSON.stringify({
+            message,
+          }),
+        }
+      );
+
+      const contentType =
+        res.headers.get("content-type") ??
+        "";
+
+      if (
+        !contentType.includes(
+          "application/json"
+        )
+      ) {
+        throw new Error(
+          `AI endpoint returned status ${res.status}`
+        );
       }
-    );
 
-    const data =
-      await res.json();
+      const data = await res.json();
 
-    setReply(data.reply);
+      if (!res.ok || data.error) {
+        throw new Error(
+          data.error ??
+            `AI endpoint returned status ${res.status}`
+        );
+      }
+
+      setReply(data.reply ?? "");
+    } catch (err) {
+      const message =
+        err instanceof Error
+          ? err.message
+          : "AI request failed";
+
+      setError(message);
+    }
   }
 
   return (
@@ -60,6 +94,12 @@ export function AIChat() {
       {reply && (
         <div className="mt-6 rounded-xl border p-4">
           {reply}
+        </div>
+      )}
+
+      {error && (
+        <div className="mt-6 rounded-xl border border-red-200 bg-red-50 p-4 text-red-700">
+          {error}
         </div>
       )}
     </div>

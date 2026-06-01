@@ -1,8 +1,10 @@
-import { openai } from "@/lib/openai";
+import { getOpenAIClient } from "@/lib/openai";
 
 export async function generateReport(
   data: unknown
 ) {
+  const openai = getOpenAIClient();
+
   const completion =
     await openai.chat.completions.create({
       model: "gpt-4.1-mini",
