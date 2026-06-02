@@ -1,105 +1,40 @@
+import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { ZodError } from "zod";
 
-import { createClassSchema } from "@/lib/validations/class";
-
-export async function GET() {
+export async function POST(request: Request) {
   try {
-    const classes =
-      await prisma.class.findMany({
-        include: {
-          academicYear: true,
-          students: true,
-        },
+    const { name, level, capacity, academicYearId } = await request.json();
 
-        orderBy: {
-          createdAt: "desc",
-        },
-      });
+    if (!name || !level || !academicYearId) {
+      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    }
 
-    return Response.json(classes);
-
-  } catch (error) {
-    console.error(error);
-
-    return Response.json(
-      {
-        error:
-          "Failed to fetch classes",
+    const created = await prisma.class.create({
+      data: {
+        name,
+        level,
+        capacity: capacity ?? null,
+        academicYearId,
       },
-      {
-        status: 500,
-      }
-    );
+    });
+
+    return NextResponse.json(created);
+  } catch (err) {
+    console.error(err);
+    return NextResponse.json({ error: "Failed to create class" }, { status: 500 });
   }
 }
 
-export async function POST(
-  req: Request
-) {
+export async function GET() {
   try {
-    const body =
-      await req.json();
+    const classes = await prisma.class.findMany({
+      include: { academicYear: true, students: true },
+      orderBy: { createdAt: "desc" },
+    });
 
-    const validatedData =
-      createClassSchema.parse(body);
-
-    const newClass =
-      await prisma.class.create({
-        data: validatedData,
-      });
-
-    return Response.json(
-      newClass
-    );
-
-  } catch (error: unknown) {
-
-    // Zod validation errors
-    if (
-      error instanceof ZodError
-    ) {
-      return Response.json(
-        {
-          error:
-            error.issues[0]
-              ?.message ||
-            "Invalid class payload",
-        },
-        {
-          status: 400,
-        }
-      );
-    }
-
-    // Prisma foreign key errors
-    if (
-      typeof error === "object" &&
-      error !== null &&
-      "code" in error &&
-      error.code === "P2003"
-    ) {
-      return Response.json(
-        {
-          error:
-            "Selected academic year does not exist",
-        },
-        {
-          status: 400,
-        }
-      );
-    }
-
-    console.error(error);
-
-    return Response.json(
-      {
-        error:
-          "Failed to create class",
-      },
-      {
-        status: 500,
-      }
-    );
+    return NextResponse.json(classes);
+  } catch (err) {
+    console.error(err);
+    return NextResponse.json({ error: "Failed to fetch classes" }, { status: 500 });
   }
 }

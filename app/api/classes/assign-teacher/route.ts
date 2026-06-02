@@ -1,20 +1,17 @@
+import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-export async function POST(req: Request) {
+export async function POST(request: Request) {
   try {
-    const body = await req.json();
-    const { classId, teacherId } = body;
+    const { classId, teacherId } = await request.json();
 
-    if (!classId || !teacherId) {
-      return Response.json(
-        { error: "classId and teacherId are required" },
-        { status: 400 }
-      );
+    if (!classId) {
+      return NextResponse.json({ error: "Missing classId" }, { status: 400 });
     }
 
     const updatedClass = await prisma.class.update({
       where: { id: classId },
-      data: { teacherId },
+      data: { teacherId: teacherId ?? null },
       include: {
         academicYear: true,
         teacher: true,
@@ -22,12 +19,9 @@ export async function POST(req: Request) {
       },
     });
 
-    return Response.json(updatedClass);
-  } catch (error) {
-    console.error(error);
-    return Response.json(
-      { error: "Failed to assign teacher to class" },
-      { status: 500 }
-    );
+    return NextResponse.json(updatedClass);
+  } catch (err) {
+    console.error(err);
+    return NextResponse.json({ error: "Failed to assign teacher to class" }, { status: 500 });
   }
 }

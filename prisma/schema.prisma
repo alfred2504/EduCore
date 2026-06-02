@@ -387,6 +387,25 @@ model ProcurementRequest {
   createdAt   DateTime @default(now())
 }
 
+model Timetable {
+  id        String   @id @default(cuid())
+
+  classId   String
+  subjectId String
+  teacherId String?
+
+  day       String
+  startTime DateTime
+  endTime   DateTime
+
+  class     Class    @relation(fields: [classId], references: [id])
+  subject   Subject  @relation(fields: [subjectId], references: [id])
+  teacher   Teacher? @relation(fields: [teacherId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 model Parent {
   id        String   @id @default(cuid())
 

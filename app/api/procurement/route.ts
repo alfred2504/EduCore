@@ -1,25 +1,37 @@
+import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
 export async function GET() {
-  const requests =
-    await prisma.procurementRequest.findMany({
-      include: {
-        vendor: true,
+  try {
+    const items = await prisma.procurementRequest.findMany({ include: { vendor: true }, orderBy: { createdAt: "desc" } });
+    return NextResponse.json(items);
+  } catch (err) {
+    console.error(err);
+    return NextResponse.json({ error: "Failed to fetch procurement requests" }, { status: 500 });
+  }
+}
+
+export async function POST(request: Request) {
+  try {
+    const { title, description, amount, vendorId } = await request.json();
+
+    if (!title || amount == null) {
+      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    }
+
+    const created = await prisma.procurementRequest.create({
+      data: {
+        title,
+        description: description ?? null,
+        amount: Number(amount),
+        vendorId: vendorId ?? null,
+        status: "PENDING",
       },
     });
 
-  return Response.json(requests);
-}
-
-export async function POST(
-  req: Request
-) {
-  const body = await req.json();
-
-  const request =
-    await prisma.procurementRequest.create({
-      data: body,
-    });
-
-  return Response.json(request);
+    return NextResponse.json(created);
+  } catch (err) {
+    console.error(err);
+    return NextResponse.json({ error: "Failed to create procurement request" }, { status: 500 });
+  }
 }
