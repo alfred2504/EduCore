@@ -36,15 +36,21 @@ interface SubjectItem {
   class: {
     name: string;
   };
+  teacher?: {
+    firstName: string;
+    lastName: string;
+  };
 }
 
 interface TermItem {
   id: string;
   name: string;
+  startDate: string;
+  endDate: string;
 }
 
 export default async function ExamsPage() {
-  const [classes, subjects, terms, examsRaw] = await Promise.all([
+  const [classes, subjects, terms, teachers, examsRaw] = await Promise.all([
     prisma.class.findMany({
       select: {
         id: true,
@@ -60,9 +66,17 @@ export default async function ExamsPage() {
         name: true,
         code: true,
         classId: true,
+        teacherId: true,
         class: {
           select: {
             name: true,
+          },
+        },
+        teacher: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
           },
         },
       },
@@ -74,9 +88,33 @@ export default async function ExamsPage() {
       select: {
         id: true,
         name: true,
+        startDate: true,
+        endDate: true,
       },
       orderBy: {
-        name: "asc",
+        startDate: "asc",
+      },
+    }),
+    prisma.teacher.findMany({
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        subjects: {
+          select: {
+            id: true,
+            name: true,
+            class: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: {
+        firstName: "asc",
       },
     }),
     prisma.exam.findMany({
@@ -120,6 +158,71 @@ export default async function ExamsPage() {
           subjects={subjects}
           terms={terms}
         />
+      </div>
+
+      {/* Academic Terms, Subjects & Teachers Overview */}
+      <div className="grid gap-6 md:grid-cols-3">
+        {/* Academic Terms */}
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-[#111827]">
+          <h3 className="text-lg font-semibold">Academic Terms</h3>
+          <div className="mt-4 space-y-3">
+            {terms.map((term) => (
+              <div key={term.id} className="rounded-lg border border-slate-200 p-3 dark:border-slate-700">
+                <div className="font-semibold text-slate-900 dark:text-white">{term.name}</div>
+                <div className="text-xs text-slate-500 mt-1">
+                  {new Date(term.startDate).toLocaleDateString()} - {new Date(term.endDate).toLocaleDateString()}
+                </div>
+              </div>
+            ))}
+            {terms.length === 0 && <div className="text-sm text-slate-500">No terms configured</div>}
+          </div>
+        </div>
+
+        {/* Subjects */}
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-[#111827]">
+          <h3 className="text-lg font-semibold">Subjects ({subjects.length})</h3>
+          <div className="mt-4 space-y-3">
+            {subjects.slice(0, 5).map((subject) => (
+              <div key={subject.id} className="rounded-lg border border-slate-200 p-3 dark:border-slate-700">
+                <div className="font-semibold text-slate-900 dark:text-white text-sm">{subject.name}</div>
+                <div className="text-xs text-slate-500 mt-1">
+                  <span>{subject.class.name}</span> • <span>{subject.code}</span>
+                </div>
+                {subject.teacher && (
+                  <div className="text-xs text-blue-600 dark:text-blue-400 mt-1">
+                    {subject.teacher.firstName} {subject.teacher.lastName}
+                  </div>
+                )}
+              </div>
+            ))}
+            {subjects.length > 5 && (
+              <div className="text-xs text-slate-500 pt-2">+{subjects.length - 5} more</div>
+            )}
+          </div>
+        </div>
+
+        {/* Teachers */}
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-[#111827]">
+          <h3 className="text-lg font-semibold">Teachers ({teachers.length})</h3>
+          <div className="mt-4 space-y-3">
+            {teachers.slice(0, 5).map((teacher) => (
+              <div key={teacher.id} className="rounded-lg border border-slate-200 p-3 dark:border-slate-700">
+                <div className="font-semibold text-slate-900 dark:text-white text-sm">
+                  {teacher.firstName} {teacher.lastName}
+                </div>
+                <div className="text-xs text-slate-500 mt-1">{teacher.email}</div>
+                {teacher.subjects.length > 0 && (
+                  <div className="text-xs text-slate-600 dark:text-slate-400 mt-2">
+                    Subjects: {teacher.subjects.map(s => s.name).join(", ")}
+                  </div>
+                )}
+              </div>
+            ))}
+            {teachers.length > 5 && (
+              <div className="text-xs text-slate-500 pt-2">+{teachers.length - 5} more</div>
+            )}
+          </div>
+        </div>
       </div>
 
       <div className="overflow-x-auto rounded-2xl bg-white shadow-sm dark:bg-[#111827]">

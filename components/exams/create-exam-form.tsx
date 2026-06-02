@@ -17,6 +17,10 @@ type SubjectItem = {
   class: {
     name: string;
   };
+  teacher?: {
+    firstName: string;
+    lastName: string;
+  };
 };
 
 type TermItem = {
@@ -53,6 +57,8 @@ export function CreateExamForm({
   const filteredSubjects = formData.classId
     ? subjects.filter((s) => s.classId === formData.classId)
     : subjects;
+
+  const selectedSubject = subjects.find((subject) => subject.id === formData.subjectId);
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -190,6 +196,11 @@ export function CreateExamForm({
             </select>
             {formData.classId && filteredSubjects.length === 0 && (
               <p className="text-xs text-rose-500 mt-1">No subjects for this class.</p>
+            )}
+            {selectedSubject?.teacher && (
+              <p className="text-xs text-slate-500 mt-2">
+                Taught by {selectedSubject.teacher.firstName} {selectedSubject.teacher.lastName}
+              </p>
             )}
           </div>
         </div>

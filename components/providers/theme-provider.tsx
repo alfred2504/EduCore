@@ -5,7 +5,7 @@ import React from "react";
 
 export default function NextThemeProvider({ children }: { children: React.ReactNode }) {
   return (
-    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem suppressHydrationWarning>
       {children}
     </ThemeProvider>
   );

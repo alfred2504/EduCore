@@ -15,6 +15,7 @@ import {
   BarChart3,
   Shield,
   Settings,
+  Calendar,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -91,6 +92,17 @@ const menuItems = [
     title: "Exams",
     href: "/dashboard/exams",
     icon: ClipboardList,
+    roles: [
+      "SYSTEM_ADMIN",
+      "SCHOOL_ADMIN",
+      "TEACHER",
+    ],
+  },
+
+  {
+    title: "Terms",
+    href: "/dashboard/terms",
+    icon: Calendar,
     roles: [
       "SYSTEM_ADMIN",
       "SCHOOL_ADMIN",

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { AssignSubjectToTeacherForm } from "@/components/subjects/assign-subject-to-teacher-form";
 import { prisma } from "@/lib/prisma";
 
 interface PageProps {
@@ -18,34 +19,44 @@ export default async function TeacherDetailsPage({
     notFound();
   }
 
-  const teacher = await prisma.teacher.findUnique({
-    where: {
-      id,
-    },
-    include: {
-      classes: {
-        select: {
-          id: true,
-          name: true,
-          level: true,
+  const [teacher, availableSubjects] = await Promise.all([
+    prisma.teacher.findUnique({
+      where: {
+        id,
+      },
+      include: {
+        classes: {
+          select: {
+            id: true,
+            name: true,
+            level: true,
+          },
+        },
+        subjects: {
+          select: {
+            id: true,
+            name: true,
+            code: true,
+          },
+        },
+        user: {
+          select: {
+            id: true,
+            role: true,
+            status: true,
+          },
         },
       },
-      subjects: {
-        select: {
-          id: true,
-          name: true,
-          code: true,
-        },
+    }),
+    prisma.subject.findMany({
+      include: {
+        class: true,
       },
-      user: {
-        select: {
-          id: true,
-          role: true,
-          status: true,
-        },
+      orderBy: {
+        name: "asc",
       },
-    },
-  });
+    }),
+  ]);
 
   if (!teacher) {
     notFound();
@@ -94,6 +105,8 @@ export default async function TeacherDetailsPage({
           </h2>
         </div>
       </div>
+
+      <AssignSubjectToTeacherForm teacherId={teacher.id} subjects={availableSubjects} />
 
       <div className="overflow-hidden rounded-2xl bg-white shadow-sm dark:bg-[#111827]">
         <div className="border-b border-slate-200 px-6 py-4 dark:border-slate-800">
