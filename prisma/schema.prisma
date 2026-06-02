@@ -64,7 +64,7 @@ model Class {
 
   academicYear   AcademicYear @relation(fields: [academicYearId], references: [id])
 
-  teacher        Teacher? @relation(fields: [teacherId], references: [id])
+  teacher        Teacher? @relation("ClassTeacher", fields: [teacherId], references: [id])
 
   students       Student[]
 
@@ -73,6 +73,8 @@ model Class {
   exams          Exam[]
 
   attendances    Attendance[]
+
+  timetables     Timetable[] @relation("ClassTimetable")
 
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
@@ -140,9 +142,11 @@ model Teacher {
 
   user         User? @relation(fields: [userId], references: [id])
 
-  classes      Class[]
+  classes      Class[] @relation("ClassTeacher")
 
-  subjects     Subject[]
+  subjects     Subject[] @relation("SubjectTeacher")
+
+  timetables   Timetable[] @relation("TimetableTeacher")
 
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
@@ -161,11 +165,13 @@ model Subject {
 
   teacherId   String?
 
-  teacher     Teacher? @relation(fields: [teacherId], references: [id])
+  teacher     Teacher? @relation("SubjectTeacher", fields: [teacherId], references: [id])
 
   grades      Grade[]
 
   exams       Exam[]
+
+  timetables  Timetable[] @relation("SubjectTimetable")
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -398,9 +404,9 @@ model Timetable {
   startTime DateTime
   endTime   DateTime
 
-  class     Class    @relation(fields: [classId], references: [id])
-  subject   Subject  @relation(fields: [subjectId], references: [id])
-  teacher   Teacher? @relation(fields: [teacherId], references: [id])
+  class     Class    @relation("ClassTimetable", fields: [classId], references: [id])
+  subject   Subject  @relation("SubjectTimetable", fields: [subjectId], references: [id])
+  teacher   Teacher? @relation("TimetableTeacher", fields: [teacherId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
