@@ -9,38 +9,95 @@ const updateSchema = z.object({
 
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } }
+  context: {
+    params: Promise<{
+      id: string;
+    }>;
+  }
 ) {
   try {
-    const { id } = params;
-    const body = await request.json();
-    const data = updateSchema.parse(body);
+    const { id } =
+      await context.params;
 
-    const updated = await prisma.subject.update({
-      where: { id },
-      data: {
-        ...(data.teacherId !== undefined ? { teacherId: data.teacherId } : {}),
-        ...(data.classId ? { classId: data.classId } : {}),
+    const body =
+      await request.json();
+
+    const data =
+      updateSchema.parse(body);
+
+    const updated =
+      await prisma.subject.update({
+        where: {
+          id,
+        },
+        data: {
+          ...(data.teacherId !== undefined
+            ? {
+                teacherId:
+                  data.teacherId,
+              }
+            : {}),
+          ...(data.classId
+            ? {
+                classId:
+                  data.classId,
+              }
+            : {}),
+        },
+      });
+
+    return NextResponse.json(
+      updated
+    );
+
+  } catch (error) {
+    console.error(error);
+
+    return NextResponse.json(
+      {
+        error:
+          "Failed to update subject",
       },
-    });
-
-    return NextResponse.json(updated);
-  } catch (err) {
-    console.error(err);
-    return NextResponse.json({ error: "Failed to update subject" }, { status: 400 });
+      {
+        status: 400,
+      }
+    );
   }
 }
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  context: {
+    params: Promise<{
+      id: string;
+    }>;
+  }
 ) {
   try {
-    const { id } = params;
-    await prisma.subject.delete({ where: { id } });
-    return NextResponse.json({ ok: true });
-  } catch (err) {
-    console.error(err);
-    return NextResponse.json({ error: "Failed to delete subject" }, { status: 500 });
+    const { id } =
+      await context.params;
+
+    await prisma.subject.delete({
+      where: {
+        id,
+      },
+    });
+
+    return NextResponse.json({
+      ok: true,
+    });
+
+  } catch (error) {
+    console.error(error);
+
+    return NextResponse.json(
+      {
+        error:
+          "Failed to delete subject",
+      },
+      {
+        status: 500,
+      }
+    );
   }
 }
