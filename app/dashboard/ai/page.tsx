@@ -1,5 +1,8 @@
 import { AIChat } from "@/components/ai/ai-chat";
 import { generateAIInsights } from "@/lib/ai/insights";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { redirect } from "next/navigation";
 
 type InsightsPageData = {
   insights?: string | null;
@@ -17,6 +20,11 @@ async function getInsights(): Promise<InsightsPageData> {
 }
 
 export default async function AIPage() {
+  const session = await getServerSession(authOptions);
+  if (!session?.user) redirect("/login");
+  if (!["SYSTEM_ADMIN", "SCHOOL_ADMIN", "TEACHER"].includes(session.user.role)) {
+    return <div className="rounded-2xl bg-white p-6 shadow-sm dark:bg-[#111827]">AI tools are available to teachers and administrators.</div>;
+  }
   const data = await getInsights();
 
   return (

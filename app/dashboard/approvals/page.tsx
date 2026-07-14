@@ -40,23 +40,36 @@ export default async function ApprovalsPage() {
     );
   }
 
-  const pendingUsers =
-    await prisma.user.findMany({
+  let pendingUsers: PendingUser[] = [];
+
+  try {
+    pendingUsers = await prisma.user.findMany({
       where: {
         status: "PENDING",
 
         role: {
-          in: [
-            "TEACHER",
-            "STUDENT",
-          ],
+          in: ["TEACHER", "STUDENT"],
         },
       },
-
       orderBy: {
         createdAt: "desc",
       },
     });
+  } catch (error) {
+    console.error("Approvals page error", error);
+
+    return (
+      <div className="rounded-2xl bg-white p-6 shadow-sm dark:bg-[#111827]">
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+          Unable to load approvals
+        </h1>
+
+        <p className="mt-2 text-slate-500">
+          There was a problem connecting to the database. Please try again later.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <ApprovalManager

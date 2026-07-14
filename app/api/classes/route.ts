@@ -3,18 +3,37 @@ import { prisma } from "@/lib/prisma";
 
 export async function POST(request: Request) {
   try {
-    const { name, level, capacity, academicYearId } = await request.json();
+    const { name, level, capacity, academicYearId, academicYearName } = await request.json();
 
-    if (!name || !level || !academicYearId) {
+    if (!name?.trim() || !level?.trim() || (!academicYearId && !academicYearName?.trim())) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    }
+
+    const parsedCapacity = capacity === "" || capacity === null || capacity === undefined
+      ? null
+      : Number(capacity);
+    if (parsedCapacity !== null && (!Number.isInteger(parsedCapacity) || parsedCapacity < 1)) {
+      return NextResponse.json({ error: "Capacity must be a positive whole number" }, { status: 400 });
+    }
+
+    const year = academicYearId
+      ? await prisma.academicYear.findUnique({ where: { id: academicYearId } })
+      : await prisma.academicYear.upsert({
+          where: { name: academicYearName.trim() },
+          create: { name: academicYearName.trim(), isCurrent: true },
+          update: {},
+        });
+
+    if (!year) {
+      return NextResponse.json({ error: "Selected academic year was not found" }, { status: 400 });
     }
 
     const created = await prisma.class.create({
       data: {
-        name,
-        level,
-        capacity: capacity ?? null,
-        academicYearId,
+        name: name.trim(),
+        level: level.trim(),
+        capacity: parsedCapacity,
+        academicYearId: year.id,
       },
     });
 

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 
 export default async function ResultsPage() {
@@ -17,15 +18,32 @@ export default async function ResultsPage() {
     },
   });
 
+  const totalGrades = await prisma.grade.count();
+
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
-          Results
-        </h1>
-        <p className="mt-1 text-slate-500">
-          Student exam results and grading history
-        </p>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Results</h1>
+          <p className="mt-1 text-slate-500">Student exam results and grading history.</p>
+        </div>
+        <Link
+          href="/dashboard/grades"
+          className="rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
+        >
+          View grade records
+        </Link>
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-2">
+        <div className="rounded-2xl bg-white p-6 shadow-sm dark:bg-[#111827]">
+          <p className="text-sm text-slate-500">Total results</p>
+          <h2 className="mt-2 text-4xl font-bold text-slate-900 dark:text-white">{results.length}</h2>
+        </div>
+        <div className="rounded-2xl bg-white p-6 shadow-sm dark:bg-[#111827]">
+          <p className="text-sm text-slate-500">Grade records</p>
+          <h2 className="mt-2 text-4xl font-bold text-slate-900 dark:text-white">{totalGrades}</h2>
+        </div>
       </div>
 
       <div className="overflow-hidden rounded-2xl bg-white shadow-sm dark:bg-[#111827]">

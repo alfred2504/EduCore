@@ -6,7 +6,7 @@ import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import type { JWT } from "next-auth/jwt";
 
-import { prisma } from "./prisma";
+import { prisma } from "@/lib/prisma";
 
 type AuthUser = {
   id: string;

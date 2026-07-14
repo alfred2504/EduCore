@@ -1,33 +1,13 @@
-import { getOpenAIClient } from "@/lib/openai";
+import { generateModelText, isModelUnavailable } from "@/lib/ai/model";
 
-export async function generateReport(
-  data: unknown
-) {
-  const openai = getOpenAIClient();
-
-  const completion =
-    await openai.chat.completions.create({
-      model: "gpt-4.1-mini",
-
-      messages: [
-        {
-          role: "system",
-
-          content:
-            "Generate professional school reports.",
-        },
-
-        {
-          role: "user",
-
-          content: JSON.stringify(
-            data
-          ),
-        },
-      ],
+export async function generateReport(data: unknown) {
+  try {
+    return await generateModelText({
+      system: "Generate a concise, professional school report from the supplied verified data. Do not add facts that are not present.",
+      prompt: JSON.stringify(data),
     });
-
-  return completion
-    .choices[0]
-    .message.content;
+  } catch (error) {
+    if (!isModelUnavailable(error)) throw error;
+    return "The external AI report writer is unavailable. Please use the verified academic records to complete this report.";
+  }
 }

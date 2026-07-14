@@ -155,7 +155,7 @@ export function Topbar({ name, role }: TopbarProps) {
           "fixed inset-0 z-50 lg:hidden",
           menuOpen ? "pointer-events-auto" : "pointer-events-none"
         )}
-        aria-hidden={!menuOpen}
+        hidden={!menuOpen}
       >
         <div
           className={cn(

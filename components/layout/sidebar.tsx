@@ -195,6 +195,15 @@ const menuItems = [
   },
 
   {
+    title: "Approvals",
+    href: "/dashboard/approvals",
+    icon: Shield,
+    roles: [
+      "SYSTEM_ADMIN",
+    ],
+  },
+
+  {
     title: "Settings",
     href: "/dashboard/settings",
     icon: Settings,

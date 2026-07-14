@@ -1,6 +1,7 @@
-import Link from "next/link";
+"use client";
 
-import { prisma } from "@/lib/prisma";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 
 interface TeacherItem {
   id: string;
@@ -11,25 +12,71 @@ interface TeacherItem {
   createdAt: Date;
 }
 
-export default async function TeachersPage() {
-  const teachers: TeacherItem[] =
-    await prisma.teacher.findMany({
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
+export default function TeachersPage() {
+  const [teachers, setTeachers] = useState<TeacherItem[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  const refreshTeachers = async () => {
+    try {
+      const res = await fetch("/api/teachers");
+      const data = await res.json();
+      setTeachers(data || []);
+    } catch {
+      setTeachers([]);
+    }
+  };
+
+  const deleteTeacher = async (id: string) => {
+    if (!window.confirm("Delete this teacher account?")) return;
+    setLoading(true);
+    const res = await fetch(`/api/teachers/${id}/delete`, { method: "DELETE" });
+    setLoading(false);
+    if (!res.ok) {
+      const errorBody = await res.json().catch(() => null);
+      alert(
+        errorBody?.error ||
+          "Unable to delete teacher account"
+      );
+      return;
+    }
+    await refreshTeachers();
+  };
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    fetch("/api/teachers", { signal: controller.signal })
+      .then((res) => res.json())
+      .then((data) => setTeachers(data || []))
+      .catch((error: unknown) => {
+        if ((error as { name?: string }).name !== "AbortError") {
+          setTeachers([]);
+        }
+      });
+
+    return () => controller.abort();
+  }, []);
 
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
-          Teachers
-        </h1>
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
+            Teachers
+          </h1>
 
-        <p className="mt-1 text-slate-500">
-          Manage teacher records
-        </p>
+          <p className="mt-1 text-slate-500">
+            Manage teacher records
+          </p>
+        </div>
+
+        <Link
+          href="/dashboard/teachers/new"
+          className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
+        >
+          Add Teacher
+        </Link>
       </div>
 
       {/* Stats */}
@@ -89,12 +136,22 @@ export default async function TeachersPage() {
                   </td>
 
                   <td className="px-6 py-4">
-                    <Link
-                      href={`/dashboard/teachers/${teacher.id}`}
-                      className="text-blue-600 hover:underline"
-                    >
-                      View
-                    </Link>
+                    <div className="flex items-center gap-4">
+                      <Link
+                        href={`/dashboard/teachers/${teacher.id}`}
+                        className="text-blue-600 hover:underline"
+                      >
+                        View
+                      </Link>
+                      <button
+                        type="button"
+                        onClick={() => deleteTeacher(teacher.id)}
+                        disabled={loading}
+                        className="text-rose-600 hover:underline disabled:opacity-60"
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </td>
                 </tr>
               )

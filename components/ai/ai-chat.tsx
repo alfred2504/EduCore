@@ -10,10 +10,21 @@ export function AIChat() {
     useState("");
   const [error, setError] =
     useState("");
+  const [loading, setLoading] = useState(false);
+  const [source, setSource] = useState<"model" | "local" | "">("");
 
   async function sendMessage() {
     setError("");
     setReply("");
+    setSource("");
+    const trimmedMessage = message.trim();
+
+    if (!trimmedMessage) {
+      setError("Enter a question before asking EduCore AI.");
+      return;
+    }
+
+    setLoading(true);
 
     try {
       const res = await fetch(
@@ -27,7 +38,7 @@ export function AIChat() {
           },
 
           body: JSON.stringify({
-            message,
+            message: trimmedMessage,
           }),
         }
       );
@@ -56,6 +67,7 @@ export function AIChat() {
       }
 
       setReply(data.reply ?? "");
+      setSource(data.source === "local" ? "local" : "model");
     } catch (err) {
       const message =
         err instanceof Error
@@ -63,6 +75,8 @@ export function AIChat() {
           : "AI request failed";
 
       setError(message);
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -86,15 +100,22 @@ export function AIChat() {
 
       <button
         onClick={sendMessage}
-        className="mt-4 rounded-xl bg-blue-600 px-6 py-3 text-white"
+        disabled={loading}
+        className="mt-4 rounded-xl bg-blue-600 px-6 py-3 text-white disabled:opacity-60"
       >
-        Ask AI
+        {loading ? "Thinking..." : "Ask AI"}
       </button>
 
       {reply && (
         <div className="mt-6 rounded-xl border p-4">
           {reply}
         </div>
+      )}
+
+      {source === "local" && (
+        <p className="mt-3 text-sm text-amber-700 dark:text-amber-300">
+          Showing local guidance because the external AI model is currently unavailable.
+        </p>
       )}
 
       {error && (

@@ -55,6 +55,25 @@ export function CreateStudentForm({
     try {
       setLoading(true);
 
+      // Preflight: check admission number uniqueness to avoid 409
+      if (data.admissionNumber) {
+        const checkRes = await fetch(
+          `/api/students/check?admissionNumber=${encodeURIComponent(
+            data.admissionNumber
+          )}`
+        );
+
+        if (checkRes.ok) {
+          const body = await checkRes.json().catch(() => null);
+          if (body?.exists) {
+            toast.error(
+              "Admission number already exists"
+            );
+            return;
+          }
+        }
+      }
+
       const response = await fetch(
         "/api/students",
         {
@@ -70,14 +89,32 @@ export function CreateStudentForm({
       );
 
       if (!response.ok) {
+        const errorBody = await response
+          .json()
+          .catch(() => null);
+
+        if (response.status === 409) {
+          toast.error(
+            errorBody?.error ||
+              "Admission number already exists"
+          );
+          return;
+        }
+
+        if (response.status === 503) {
+          toast.error(
+            "Database unavailable. Try again later."
+          );
+          return;
+        }
+
         throw new Error(
-          "Failed to create student"
+          errorBody?.error ||
+            "Failed to create student"
         );
       }
 
-      toast.success(
-        "Student created successfully"
-      );
+      toast.success("Student created successfully");
 
       reset();
 

@@ -8,7 +8,7 @@ export const createStudentSchema =
 
     lastName: z.string().min(2),
 
-    email: z.string().email().optional(),
+    email: z.string().email().or(z.literal("")).optional(),
 
     phone: z.string().optional(),
 

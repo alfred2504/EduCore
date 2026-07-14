@@ -1,135 +1,55 @@
-import { getOpenAIClient } from "@/lib/openai";
+import { getServerSession } from "next-auth";
+import { z } from "zod";
 
-type OpenAIChatCompletionLike = {
-  choices?: Array<{
-    message?: {
-      content?: string | null;
-    };
-  }>;
-  output?: Array<{
-    content?: Array<{
-      text?: string | null;
-    }>;
-  }>;
-};
+import { generateModelText, isModelUnavailable } from "@/lib/ai/model";
+import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 
-type ErrorLike = {
-  message?: string;
-  status?: number;
-  response?: {
-    status?: number;
-    data?: unknown;
-  };
-};
+const chatSchema = z.object({ message: z.string().trim().min(1, "Enter a question.").max(2_000) });
 
-function getOpenAIReply(result: unknown) {
-  const completion = result as OpenAIChatCompletionLike;
-
-  return (
-    completion.choices?.[0]?.message?.content ??
-    completion.output?.[0]?.content?.[0]?.text ??
-    null
-  );
+function buildLocalChatReply(message: string, snapshot: string) {
+  return [
+    "The external AI service is unavailable, so this response uses EduCore's local guidance.",
+    snapshot,
+    `For your question: ${message}`,
+    "Use the school snapshot to identify the affected learners, review recent attendance and assessment records, then agree on one measurable next action with the relevant teacher or guardian.",
+  ].join("\n\n");
 }
 
-function getErrorStatus(error: unknown) {
-  const knownError = error as ErrorLike;
-
-  return knownError.status ?? knownError.response?.status;
-}
-
-function getErrorDetail(error: unknown) {
-  const knownError = error as ErrorLike;
-
-  return knownError.response?.data ?? knownError.response ?? null;
-}
-
-function buildLocalChatReply(message: string) {
-  const snippet = (message || "").slice(0, 300);
-  return (
-    "AI quota exceeded — local fallback reply.\n" +
-    "I couldn't reach the external AI service right now, but here's a simple response based on your message:\n\n" +
-    snippet
-  );
-}
-
-export async function POST(
-  req: Request
-) {
+export async function POST(req: Request) {
   try {
-    const body = (await req.json()) as { message?: string };
-    const message = body.message ?? "";
+    const session = await getServerSession(authOptions);
+    if (!session?.user || !["SYSTEM_ADMIN", "SCHOOL_ADMIN", "TEACHER"].includes(session.user.role)) {
+      return Response.json({ error: "You are not authorized to use EduCore AI." }, { status: 403 });
+    }
 
-    if (!process.env.OPENAI_API_KEY) {
-      return Response.json({
-        reply: buildLocalChatReply(message),
-        fallback: "local",
-        reason: "missing_api_key",
+    const { message } = chatSchema.parse(await req.json());
+    const [studentCount, teacherCount, attendance] = await Promise.all([
+      prisma.student.count(),
+      prisma.teacher.count(),
+      prisma.attendance.findMany({ select: { status: true }, take: 500, orderBy: { date: "desc" } }),
+    ]);
+    const presentRate = attendance.length
+      ? Math.round((attendance.filter((item) => item.status !== "ABSENT").length / attendance.length) * 100)
+      : null;
+    const snapshot = `School snapshot: ${studentCount} students, ${teacherCount} teachers, and ${presentRate === null ? "no attendance records" : `${presentRate}% present or late across the latest ${attendance.length} attendance records`}.`;
+
+    try {
+      const reply = await generateModelText({
+        system: "You are EduCore AI, an assistant for authorised school staff. Provide concise, practical educational guidance. Do not diagnose students, infer protected characteristics, or fabricate records. Remind staff to verify records before acting.",
+        prompt: `${snapshot}\n\nStaff question: ${message}`,
       });
+      return Response.json({ reply, source: "model" });
+    } catch (error) {
+      if (!isModelUnavailable(error)) throw error;
+      return Response.json({ reply: buildLocalChatReply(message, snapshot), source: "local", reason: "model_unavailable" });
     }
-
-    const openai = getOpenAIClient();
-
-    const modelsToTry = [process.env.OPENAI_MODEL, "gpt-4o-mini", "gpt-4.1-mini"].filter(
-      Boolean
-    ) as string[];
-
-    let completion: unknown = null;
-    let lastError: unknown = null;
-
-    for (const model of [...new Set(modelsToTry)]) {
-      try {
-        completion = await openai.chat.completions.create({
-          model,
-          messages: [
-            {
-              role: "system",
-              content: "You are EduCore AI Assistant.",
-            },
-            { role: "user", content: message },
-          ],
-        });
-        break;
-      } catch (err: unknown) {
-        lastError = err;
-      }
-    }
-
-    if (!completion) {
-      const status = getErrorStatus(lastError);
-      const messageText = String((lastError as ErrorLike)?.message ?? "").toLowerCase();
-      const isQuotaError = status === 429 || messageText.includes("quota") || messageText.includes("billing");
-
-      if (isQuotaError) {
-        return Response.json({ reply: buildLocalChatReply(message), fallback: "local", reason: "quota" });
-      }
-
-      throw lastError ?? new Error("No OpenAI model call succeeded");
-    }
-
-    const reply = getOpenAIReply(completion);
-
-    return Response.json({ reply });
-  } catch (error: unknown) {
-    console.error("/api/ai/chat error:", error);
-
-    const detail = getErrorDetail(error);
-    const knownError = error as ErrorLike;
-
-    return Response.json(
-      {
-        error: knownError.message ?? String(error),
-        status: knownError.response?.status ?? 500,
-        detail,
-      },
-      { status: 500 }
-    );
+  } catch (error) {
+    const message = error instanceof z.ZodError ? error.issues[0]?.message : "Unable to process the AI request.";
+    return Response.json({ error: message }, { status: error instanceof z.ZodError ? 400 : 500 });
   }
 }
 
 export async function GET() {
-  return Response.json(
-    { error: "Method Not Allowed. Send a POST with { message } to this endpoint." },
-    { status: 405, headers: { Allow: "POST" } }
-  );
+  return Response.json({ error: "Method Not Allowed. Send a POST with { message } to this endpoint." }, { status: 405, headers: { Allow: "POST" } });
 }

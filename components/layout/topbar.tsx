@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
@@ -93,10 +93,6 @@ export function Topbar({ name, role }: TopbarProps) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
 
-  useEffect(() => {
-    setMenuOpen(false);
-  }, [pathname]);
-
   const filteredMenu = menuItems.filter((item) => item.roles.includes(role));
 
   return (
@@ -155,7 +151,7 @@ export function Topbar({ name, role }: TopbarProps) {
           "fixed inset-0 z-50 lg:hidden",
           menuOpen ? "pointer-events-auto" : "pointer-events-none"
         )}
-        aria-hidden={!menuOpen}
+        hidden={!menuOpen}
       >
         <div
           className={cn(

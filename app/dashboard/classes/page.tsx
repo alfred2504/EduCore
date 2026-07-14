@@ -54,9 +54,17 @@ export default async function ClassesPage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Classes</h1>
-        <p className="mt-1 text-slate-500">Academic class management</p>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Classes</h1>
+          <p className="mt-1 text-slate-500">Academic class management</p>
+        </div>
+        <Link
+          href="/dashboard/classes/register"
+          className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
+        >
+          Add Class
+        </Link>
       </div>
 
       <div className="grid gap-6 md:grid-cols-3">

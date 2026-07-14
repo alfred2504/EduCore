@@ -1,63 +1,42 @@
-import { getOpenAIClient } from "@/lib/openai";
+import { getServerSession } from "next-auth";
+import { z } from "zod";
 
-function buildFallbackComment(gpa: number) {
-  if (gpa >= 3.5) return "Excellent academic performance.";
-  if (gpa >= 2.5) return "Good progress demonstrated.";
+import { generateModelText, isModelUnavailable } from "@/lib/ai/model";
+import { authOptions } from "@/lib/auth";
 
-  return "Additional support recommended.";
+const commentSchema = z.object({
+  gpa: z.coerce.number().min(0).max(4),
+  attendance: z.coerce.number().min(0).max(100),
+  subjectsPassed: z.coerce.number().int().min(0).optional(),
+  studentName: z.string().trim().min(1).max(120).optional(),
+});
+
+function buildFallbackComment(gpa: number, attendance: number) {
+  if (gpa >= 3.5 && attendance >= 85) return "Strong academic progress and consistent attendance. Continue to build on these positive habits.";
+  if (gpa >= 2.5) return "Good progress is evident. Focus on consistent attendance and targeted revision to strengthen results further.";
+  return "Additional academic support and a clear attendance plan are recommended to help improve progress.";
 }
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
-    const gpa = Number(body.gpa ?? 0);
-    const attendance = Number(body.attendance ?? 0);
-    const subjectsPassed = body.subjectsPassed ?? "unknown";
-    const studentName = body.studentName ?? "The student";
-
-    if (!process.env.OPENAI_API_KEY) {
-      return Response.json({
-        comment: buildFallbackComment(gpa),
-      });
+    const session = await getServerSession(authOptions);
+    if (!session?.user || !["SYSTEM_ADMIN", "SCHOOL_ADMIN", "TEACHER"].includes(session.user.role)) {
+      return Response.json({ error: "You are not authorized to generate report comments." }, { status: 403 });
     }
 
+    const data = commentSchema.parse(await req.json());
     try {
-      const openai = getOpenAIClient();
-      const completion = await openai.chat.completions.create({
-        model: "gpt-4.1-mini",
-        messages: [
-          {
-            role: "system",
-            content:
-              "Generate a concise professional teacher-style academic comment for a school report card.",
-          },
-          {
-            role: "user",
-            content: `Student Name: ${studentName}\nStudent GPA: ${gpa}\nAttendance: ${attendance}%\nSubjects Passed: ${subjectsPassed}\nWrite one short teacher-style comment.`,
-          },
-        ],
+      const comment = await generateModelText({
+        system: "Write one concise, professional, strengths-based school report comment. Do not diagnose, make guarantees, or mention AI.",
+        prompt: `Student: ${data.studentName ?? "The student"}\nGPA: ${data.gpa}\nAttendance: ${data.attendance}%\nSubjects passed: ${data.subjectsPassed ?? "not supplied"}`,
       });
-
-      const comment = completion.choices[0]?.message?.content?.trim();
-
-      return Response.json({
-        comment: comment || buildFallbackComment(gpa),
-      });
-    } catch {
-      return Response.json({
-        comment: buildFallbackComment(gpa),
-      });
+      return Response.json({ comment, source: "model" });
+    } catch (error) {
+      if (!isModelUnavailable(error)) throw error;
+      return Response.json({ comment: buildFallbackComment(data.gpa, data.attendance), source: "local", reason: "model_unavailable" });
     }
   } catch (error) {
-    console.error(error);
-
-    return Response.json(
-      {
-        error: "Failed to generate academic comment",
-      },
-      {
-        status: 500,
-      }
-    );
+    const message = error instanceof z.ZodError ? error.issues[0]?.message : "Failed to generate an academic comment.";
+    return Response.json({ error: message }, { status: error instanceof z.ZodError ? 400 : 500 });
   }
 }

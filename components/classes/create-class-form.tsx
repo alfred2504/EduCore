@@ -27,6 +27,7 @@ export function CreateClassForm({
       level: "",
       capacity: 40,
       academicYearId: "",
+      academicYearName: "",
     });
 
   async function handleSubmit(
@@ -69,6 +70,7 @@ export function CreateClassForm({
         level: "",
         capacity: 40,
         academicYearId: "",
+        academicYearName: "",
       });
 
       router.refresh();
@@ -157,6 +159,20 @@ export function CreateClassForm({
           </option>
         ))}
       </select>
+
+      {academicYears.length === 0 ? (
+        <div className="md:col-span-2">
+          <label className="mb-2 block text-sm font-medium">Academic Year</label>
+          <input
+            required
+            placeholder="e.g. 2026"
+            value={formData.academicYearName}
+            onChange={(e) => setFormData({ ...formData, academicYearName: e.target.value })}
+            className="w-full rounded-xl border border-slate-300 px-4 py-3 dark:border-slate-700 dark:bg-slate-900"
+          />
+          <p className="mt-2 text-sm text-slate-500">No academic years exist yet. This will create the first one.</p>
+        </div>
+      ) : null}
 
       <div className="md:col-span-2">
         <button
